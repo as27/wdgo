@@ -1,0 +1,52 @@
+package wdgo
+
+import (
+	"fmt"
+	"strconv"
+)
+
+// Card is part of a stage.
+type Card struct {
+	EventSource
+	Stage       *Stage
+	Description string
+	SupportID   string
+	Comments    []*Comment
+	Sessions    []*Session
+}
+
+func (c *Card) Event(cmd Cmd) error {
+	switch cmd.Action {
+	case "Name":
+		c.Name = cmd.Value
+	case "Description":
+		c.Description = cmd.Value
+	case "SupportID":
+		c.SupportID = cmd.Value
+	case "MoveTo":
+		pos, err := strconv.Atoi(cmd.Value)
+		if err != nil {
+			return fmt.Errorf("Card.Event(MoveTo:%s):%w", cmd.Value, err)
+		}
+		cards := []*Card{}
+		for i, v := range c.Stage.Cards {
+			if i == pos {
+				cards = append(cards, c)
+			}
+			if v.ID != c.ID {
+				cards = append(cards, v)
+			}
+		}
+		c.Stage.Cards = cards
+	default:
+		return fmt.Errorf("%w: %s", ErrNoSuchAction, cmd.Action)
+	}
+	return nil
+}
+
+func (c *Card) Find(id string) (Eventer, error) {
+	if c.ID == id {
+		return c, nil
+	}
+	return nil, ErrIDNotFound
+}
