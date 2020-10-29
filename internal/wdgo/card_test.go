@@ -53,3 +53,44 @@ func TestCardEventMoveTo(t *testing.T) {
 		}
 	}
 }
+
+func TestAddSession(t *testing.T) {
+	b := Board{}
+	b.ID = "1"
+	b.Name = "Testboard"
+	b.Event(Cmd{"AddStage", "s0"})
+	b.Event(Cmd{"AddStage", "s1"})
+	e, _ := b.Find("s1")
+	e.Event(Cmd{"AddCard", "c0"})
+	e.Event(Cmd{"AddCard", "c1"})
+	e, _ = b.Find("c1")
+	e.Event(Cmd{"AddSession", "ses0"})
+	e.Event(Cmd{"AddSession", "ses1"})
+	e.Event(Cmd{"AddSession", "ses2"})
+	c1 := b.Stages[1].Cards[1]
+	if len(c1.Sessions) != 3 ||
+		c1.Sessions[0].ID != "ses0" ||
+		c1.Sessions[1].ID != "ses1" ||
+		c1.Sessions[2].ID != "ses2" {
+		t.Error("sessions are not added")
+	}
+}
+
+func TestAddComment(t *testing.T) {
+	b := Board{}
+	b.ID = "1"
+	b.Name = "Testboard"
+	b.Event(Cmd{"AddStage", "s0"})
+	b.Event(Cmd{"AddStage", "s1"})
+	e, _ := b.Find("s1")
+	e.Event(Cmd{"AddCard", "c0"})
+	e.Event(Cmd{"AddCard", "c1"})
+	e, _ = b.Find("c1")
+	e.Event(Cmd{"AddComment", "com0"})
+	e.Event(Cmd{"AddComment", "com1"})
+	c1 := b.Stages[1].Cards[1]
+	if len(c1.Comments) != 2 ||
+		c1.Comments[1].ID != "com1" {
+		t.Error("Comments not added correctly")
+	}
+}

@@ -38,6 +38,16 @@ func (c *Card) Event(cmd Cmd) error {
 			}
 		}
 		c.Stage.Cards = cards
+	case "AddSession":
+		s := &Session{}
+		s.ID = cmd.Value
+		s.Card = c
+		c.Sessions = append(c.Sessions, s)
+	case "AddComment":
+		cc := &Comment{}
+		cc.ID = cmd.Value
+		cc.Card = c
+		c.Comments = append(c.Comments, cc)
 	default:
 		return fmt.Errorf("%w: %s", ErrNoSuchAction, cmd.Action)
 	}

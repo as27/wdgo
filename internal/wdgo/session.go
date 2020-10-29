@@ -9,17 +9,25 @@ import (
 type Session struct {
 	EventSource
 	Card  *Card
-	Title string
 	Start time.Time
 	End   time.Time
 }
 
 func (s *Session) Event(cmd Cmd) error {
+	var err error
 	switch cmd.Action {
+	case "Name":
+		s.Name = cmd.Value
 	case "Start":
-		s.Start = time.Now()
+		s.Start, err = time.Parse(TimeFormat, cmd.Value)
+		if err != nil {
+			return fmt.Errorf("Session.Start: %w", err)
+		}
 	case "End":
-		s.End = time.Now()
+		s.End, err = time.Parse(TimeFormat, cmd.Value)
+		if err != nil {
+			return fmt.Errorf("Session.End: %w", err)
+		}
 	default:
 		return fmt.Errorf("%w: %s", ErrNoSuchAction, cmd.Action)
 	}
