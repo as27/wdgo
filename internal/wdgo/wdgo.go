@@ -1,3 +1,13 @@
+// Package wdgo defines the structure and the logic how a
+// kanban-board for the working day is used. The state of
+// the board should be generated over events. So the gui
+// reads the state from the board and collects the events.
+// A event uses the Cmd structure, which contains a action
+// and a value as string.
+// The state should be completly reproducable just over the
+// events. For setting the correct internal timestamps every
+// event, which should change a timestamp has to call Action
+// and provide the time as input.
 package wdgo
 
 import (
@@ -25,6 +35,7 @@ const (
 // If a type does not support the given action ErrIDNotFound has
 // to be returned.
 type Eventer interface {
+	Action(time.Time)
 	Event(Cmd) error
 }
 
@@ -57,6 +68,8 @@ type EventSource struct {
 	Modified time.Time
 }
 
+// GetID returns the ID of the EventSource or the type
+// which embeded this type.
 func (e EventSource) GetID() string {
 	return e.ID
 }
