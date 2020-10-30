@@ -94,3 +94,25 @@ func TestAddComment(t *testing.T) {
 		t.Error("Comments not added correctly")
 	}
 }
+
+func TestCardFind(t *testing.T) {
+	card := &Card{}
+	card.ID = "card0"
+	card.Event(Cmd{"AddComment", "com0"})
+	card.Event(Cmd{"AddComment", "com1"})
+	card.Event(Cmd{"AddSession", "ses0"})
+	card.Event(Cmd{"AddSession", "ses1"})
+	checkIDs := []string{"card0", "com0", "com1", "ses0", "ses1"}
+	for _, id := range checkIDs {
+		t.Run(id, func(t *testing.T) {
+			e, err := card.Find(id)
+			if err != nil {
+				t.Errorf("no error expected. got: %s", err)
+			}
+			gotID, _ := EventerID(e)
+			if gotID != id {
+				t.Errorf("expect ID: %s\ngot: %s", id, gotID)
+			}
+		})
+	}
+}

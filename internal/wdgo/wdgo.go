@@ -2,6 +2,7 @@ package wdgo
 
 import (
 	"errors"
+	"fmt"
 	"time"
 )
 
@@ -27,6 +28,19 @@ type Eventer interface {
 	Event(Cmd) error
 }
 
+// EventerID takes an eventer and returns the ID. The function
+// uses the GetID Method of the EventSource.
+func EventerID(e Eventer) (string, error) {
+	type ider interface {
+		GetID() string
+	}
+	i, ok := e.(ider)
+	if !ok {
+		return "", fmt.Errorf("%T not supported", e)
+	}
+	return i.GetID(), nil
+}
+
 // Cmd defines the structure a event is defined. The Eventer needs
 // to implement every action. The values is set by a string. So all
 // values need to be stringyfied.
@@ -41,6 +55,10 @@ type EventSource struct {
 	Name     string
 	Created  time.Time
 	Modified time.Time
+}
+
+func (e EventSource) GetID() string {
+	return e.ID
 }
 
 // Action is used to set the timestamps inside the EventSource

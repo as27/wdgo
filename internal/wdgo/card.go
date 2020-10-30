@@ -1,6 +1,7 @@
 package wdgo
 
 import (
+	"errors"
 	"fmt"
 	"strconv"
 )
@@ -66,6 +67,24 @@ func (c *Card) Event(cmd Cmd) error {
 func (c *Card) Find(id string) (Eventer, error) {
 	if c.ID == id {
 		return c, nil
+	}
+	for _, s := range c.Sessions {
+		e, err := s.Find(id)
+		if err == nil {
+			return e, nil
+		}
+		if !errors.Is(err, ErrIDNotFound) {
+			return nil, fmt.Errorf("Card.Find(%s):%w", id, err)
+		}
+	}
+	for _, cc := range c.Comments {
+		e, err := cc.Find(id)
+		if err == nil {
+			return e, nil
+		}
+		if !errors.Is(err, ErrIDNotFound) {
+			return nil, fmt.Errorf("Card.Find(%s):%w", id, err)
+		}
 	}
 	return nil, ErrIDNotFound
 }
