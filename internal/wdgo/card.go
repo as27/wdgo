@@ -15,6 +15,14 @@ type Card struct {
 	Sessions    []*Session
 }
 
+// Event implements the Eventer-interface.
+// Following actions are implemented:
+//  * Name
+//  * Description
+//  * SupportID
+//  * MoveTo
+//  * AddSession
+//  * AddComment
 func (c *Card) Event(cmd Cmd) error {
 	switch cmd.Action {
 	case "Name":
@@ -54,6 +62,7 @@ func (c *Card) Event(cmd Cmd) error {
 	return nil
 }
 
+// Find searches an id inside this card, sessions and comments.
 func (c *Card) Find(id string) (Eventer, error) {
 	if c.ID == id {
 		return c, nil

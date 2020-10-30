@@ -13,6 +13,9 @@ type Comment struct {
 	Time time.Time
 }
 
+// Event implements the eventer-interface for the comments
+// Following actions are implemented:
+//  * Text
 func (c *Comment) Event(cmd Cmd) error {
 	switch cmd.Action {
 	case "Text":
@@ -23,6 +26,7 @@ func (c *Comment) Event(cmd Cmd) error {
 	return nil
 }
 
+// Find searches for an id inside the comment
 func (c *Comment) Find(id string) (Eventer, error) {
 	if c.ID == id {
 		return c, nil

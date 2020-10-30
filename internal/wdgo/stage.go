@@ -13,6 +13,11 @@ type Stage struct {
 	Cards []*Card
 }
 
+// Event implements the Eventer-interface.
+// Following actions are implemented:
+//  * Name
+//  * AddCard
+//  * MoveTo
 func (s *Stage) Event(cmd Cmd) error {
 	switch cmd.Action {
 	case "Name":
@@ -43,6 +48,8 @@ func (s *Stage) Event(cmd Cmd) error {
 	return nil
 }
 
+// Find searchs for an id inside the stage. That also contains the
+// cards, comments, sessions
 func (s *Stage) Find(id string) (Eventer, error) {
 	if s.ID == id {
 		return s, nil

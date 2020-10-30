@@ -11,6 +11,10 @@ type Board struct {
 	Stages []*Stage
 }
 
+// Event implements the eventer-interface for Board.
+// It implements:
+//   * Name
+//   * AddStage
 func (b *Board) Event(cmd Cmd) error {
 	switch cmd.Action {
 	case "Name":
@@ -26,6 +30,8 @@ func (b *Board) Event(cmd Cmd) error {
 	return nil
 }
 
+// Find an ID, which is part of the board. That method search
+// also inside the stages, cards, comments and sessions.
 func (b *Board) Find(id string) (Eventer, error) {
 	if b.ID == id {
 		return b, nil

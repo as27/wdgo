@@ -13,6 +13,7 @@ type Session struct {
 	End   time.Time
 }
 
+// Event implements the Eventer-Interface
 func (s *Session) Event(cmd Cmd) error {
 	var err error
 	switch cmd.Action {
@@ -34,6 +35,7 @@ func (s *Session) Event(cmd Cmd) error {
 	return nil
 }
 
+// Find can find if an ID is inside a session
 func (s *Session) Find(id string) (Eventer, error) {
 	if s.ID == id {
 		return s, nil
