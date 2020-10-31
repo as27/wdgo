@@ -4,7 +4,7 @@ import "testing"
 
 func TestSessionEvents(t *testing.T) {
 	b := Board{}
-	b.ID = "1"
+	b.id = "1"
 	b.Name = "Testboard"
 	b.Event(Cmd{"AddStage", "s0"})
 	b.Event(Cmd{"AddStage", "s1"})

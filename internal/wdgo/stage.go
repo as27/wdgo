@@ -24,7 +24,7 @@ func (s *Stage) Event(cmd Cmd) error {
 		s.Name = cmd.Value
 	case "AddCard":
 		c := &Card{}
-		c.ID = cmd.Value
+		c.id = cmd.Value
 		c.Stage = s
 		s.Cards = append(s.Cards, c)
 	case "MoveTo":
@@ -37,7 +37,7 @@ func (s *Stage) Event(cmd Cmd) error {
 			if i == pos {
 				stages = append(stages, s)
 			}
-			if v.ID != s.ID {
+			if v.id != s.id {
 				stages = append(stages, v)
 			}
 		}
@@ -51,7 +51,7 @@ func (s *Stage) Event(cmd Cmd) error {
 // Find searchs for an id inside the stage. That also contains the
 // cards, comments, sessions
 func (s *Stage) Find(id string) (Eventer, error) {
-	if s.ID == id {
+	if s.id == id {
 		return s, nil
 	}
 	for _, c := range s.Cards {

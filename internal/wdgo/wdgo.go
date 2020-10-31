@@ -62,7 +62,7 @@ type Cmd struct {
 
 // EventSource is the basic type for an eventer.
 type EventSource struct {
-	ID       string
+	id       string
 	Name     string
 	Created  time.Time
 	Modified time.Time
@@ -71,7 +71,7 @@ type EventSource struct {
 // GetID returns the ID of the EventSource or the type
 // which embeded this type.
 func (e EventSource) GetID() string {
-	return e.ID
+	return e.id
 }
 
 // Action is used to set the timestamps inside the EventSource

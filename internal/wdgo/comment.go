@@ -28,7 +28,7 @@ func (c *Comment) Event(cmd Cmd) error {
 
 // Find searches for an id inside the comment
 func (c *Comment) Find(id string) (Eventer, error) {
-	if c.ID == id {
+	if c.id == id {
 		return c, nil
 	}
 	return nil, ErrIDNotFound

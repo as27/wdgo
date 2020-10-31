@@ -8,7 +8,7 @@ import (
 
 func TestAddCard(t *testing.T) {
 	b := Board{}
-	b.ID = "1"
+	b.id = "1"
 	b.Name = "Testboard"
 	b.Event(Cmd{"AddStage", "s0"})
 	b.Event(Cmd{"AddStage", "s1"})
@@ -18,14 +18,14 @@ func TestAddCard(t *testing.T) {
 	expectNoError(t, err)
 	err = b.Stages[0].Event(Cmd{"AddCard", "c2"})
 	expectNoError(t, err)
-	if b.Stages[0].Cards[2].ID != "c2" {
-		t.Errorf("expect ID=c2, got: %s", b.Stages[0].Cards[2].ID)
+	if b.Stages[0].Cards[2].id != "c2" {
+		t.Errorf("expect ID=c2, got: %s", b.Stages[0].Cards[2].id)
 	}
 }
 
 func TestFind(t *testing.T) {
 	b := Board{}
-	b.ID = "1"
+	b.id = "1"
 	b.Name = "Testboard"
 	b.Event(Cmd{"AddStage", "s0"})
 	b.Event(Cmd{"AddStage", "s1"})
@@ -39,8 +39,8 @@ func TestFind(t *testing.T) {
 		t.Error("got wrong type")
 		return
 	}
-	if c1.ID != "c1" {
-		t.Errorf("expect c1\ngot: %s", c1.ID)
+	if c1.id != "c1" {
+		t.Errorf("expect c1\ngot: %s", c1.id)
 	}
 	_, err = b.Find("cx")
 	if !errors.Is(err, ErrIDNotFound) {
@@ -50,7 +50,7 @@ func TestFind(t *testing.T) {
 
 func TestStageMoveTo(t *testing.T) {
 	b := Board{}
-	b.ID = "1"
+	b.id = "1"
 	b.Name = "Testboard"
 	b.Event(Cmd{"AddStage", "s0"})
 	b.Event(Cmd{"AddStage", "s1"})
@@ -60,16 +60,16 @@ func TestStageMoveTo(t *testing.T) {
 	e, _ := b.Find("s4")
 	err := e.Event(Cmd{"MoveTo", "0"})
 	expectNoError(t, err)
-	if b.Stages[0].ID != "s4" && b.Stages[3].ID != "s2" {
+	if b.Stages[0].id != "s4" && b.Stages[3].id != "s2" {
 		t.Errorf("MoveTo does not work\nGot: %#v", *b.Stages[0])
 		for i, v := range b.Stages {
-			fmt.Println(i, v.ID)
+			fmt.Println(i, v.id)
 		}
 	}
 }
 func XXXTest(t *testing.T) {
 	b := Board{}
-	b.ID = "1"
+	b.id = "1"
 	b.Name = "Testboard"
 	b.Event(Cmd{"AddStage", "s0"})
 	b.Event(Cmd{"AddStage", "s1"})

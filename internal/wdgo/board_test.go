@@ -10,7 +10,7 @@ import (
 
 func TestBoard_Event(t *testing.T) {
 	initialBoard := Board{}
-	initialBoard.ID = "1"
+	initialBoard.id = "1"
 	initialBoard.Name = "empty"
 
 	tests := []struct {
@@ -57,7 +57,7 @@ func TestBoard_Event(t *testing.T) {
 
 func TestBoardFind(t *testing.T) {
 	b := &Board{}
-	b.ID = "1"
+	b.id = "1"
 	b.Name = "Testboard"
 	b.Event(Cmd{"AddStage", "s0"})
 	b.Event(Cmd{"AddStage", "s1"})

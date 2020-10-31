@@ -8,7 +8,7 @@ import (
 func TestEventSourceAction(t *testing.T) {
 	now := time.Now()
 	later := now.Add(time.Second)
-	es := EventSource{ID: "1", Name: "some name"}
+	es := EventSource{id: "1", Name: "some name"}
 	es.Action(now)
 	if !es.Created.Equal(now) {
 		t.Errorf("1: Created\nexpect:%s\ngot:%s", now, es.Created)
@@ -44,7 +44,7 @@ func TestEventerID(t *testing.T) {
 		})
 	}
 	b := Board{}
-	b.ID = "board0"
+	b.id = "board0"
 	b.Name = "Testboard"
 	b.Event(Cmd{"AddStage", "s0"})
 	b.Stages[0].Event(Cmd{"AddCard", "c0"})

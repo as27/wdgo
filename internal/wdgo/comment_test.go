@@ -4,7 +4,7 @@ import "testing"
 
 func TestCommentEvents(t *testing.T) {
 	c := &Comment{}
-	c.ID = "cc0"
+	c.id = "cc0"
 	txt := "some text"
 	c.Event(Cmd{"Text", txt})
 	if c.Text != txt {

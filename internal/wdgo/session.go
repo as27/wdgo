@@ -37,7 +37,7 @@ func (s *Session) Event(cmd Cmd) error {
 
 // Find can find if an ID is inside a session
 func (s *Session) Find(id string) (Eventer, error) {
-	if s.ID == id {
+	if s.id == id {
 		return s, nil
 	}
 	return nil, ErrIDNotFound

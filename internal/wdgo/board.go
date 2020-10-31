@@ -21,7 +21,7 @@ func (b *Board) Event(cmd Cmd) error {
 		b.Name = cmd.Value
 	case "AddStage":
 		s := Stage{}
-		s.ID = cmd.Value
+		s.id = cmd.Value
 		s.Board = b
 		b.Stages = append(b.Stages, &s)
 	default:
@@ -33,7 +33,7 @@ func (b *Board) Event(cmd Cmd) error {
 // Find an ID, which is part of the board. That method search
 // also inside the stages, cards, comments and sessions.
 func (b *Board) Find(id string) (Eventer, error) {
-	if b.ID == id {
+	if b.id == id {
 		return b, nil
 	}
 	for _, s := range b.Stages {

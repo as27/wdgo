@@ -42,19 +42,19 @@ func (c *Card) Event(cmd Cmd) error {
 			if i == pos {
 				cards = append(cards, c)
 			}
-			if v.ID != c.ID {
+			if v.id != c.id {
 				cards = append(cards, v)
 			}
 		}
 		c.Stage.Cards = cards
 	case "AddSession":
 		s := &Session{}
-		s.ID = cmd.Value
+		s.id = cmd.Value
 		s.Card = c
 		c.Sessions = append(c.Sessions, s)
 	case "AddComment":
 		cc := &Comment{}
-		cc.ID = cmd.Value
+		cc.id = cmd.Value
 		cc.Card = c
 		c.Comments = append(c.Comments, cc)
 	default:
@@ -65,7 +65,7 @@ func (c *Card) Event(cmd Cmd) error {
 
 // Find searches an id inside this card, sessions and comments.
 func (c *Card) Find(id string) (Eventer, error) {
-	if c.ID == id {
+	if c.id == id {
 		return c, nil
 	}
 	for _, s := range c.Sessions {
