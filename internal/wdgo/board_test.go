@@ -9,8 +9,7 @@ import (
 )
 
 func TestBoard_Event(t *testing.T) {
-	initialBoard := Board{}
-	initialBoard.id = "1"
+	initialBoard := NewBoard("1")
 	initialBoard.Name = "empty"
 
 	tests := []struct {
@@ -22,21 +21,21 @@ func TestBoard_Event(t *testing.T) {
 	}{
 		{
 			"set name: foo",
-			&initialBoard,
+			initialBoard,
 			Cmd{"Name", "foo"},
 			"Name:\"foo\"",
 			false,
 		},
 		{
 			"not existing action",
-			&initialBoard,
+			initialBoard,
 			Cmd{"AnotherName", "xxx"},
 			"Name:\"foo\"",
 			true,
 		},
 		{
 			"set name: bar",
-			&initialBoard,
+			initialBoard,
 			Cmd{"Name", "bar"},
 			"Name:\"bar\"",
 			false,
@@ -56,8 +55,7 @@ func TestBoard_Event(t *testing.T) {
 }
 
 func TestBoardFind(t *testing.T) {
-	b := &Board{}
-	b.id = "1"
+	b := NewBoard("1")
 	b.Name = "Testboard"
 	b.Event(Cmd{"AddStage", "s0"})
 	b.Event(Cmd{"AddStage", "s1"})

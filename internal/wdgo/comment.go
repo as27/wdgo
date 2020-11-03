@@ -13,6 +13,13 @@ type Comment struct {
 	Time time.Time
 }
 
+// NewComment creates a comment with a given id
+func NewComment(id string) *Comment {
+	c := Comment{}
+	c.id = id
+	return &c
+}
+
 // Event implements the eventer-interface for the comments
 // Following actions are implemented:
 //  * Text

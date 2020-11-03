@@ -12,7 +12,6 @@ package wdgo
 
 import (
 	"errors"
-	"fmt"
 	"time"
 )
 
@@ -35,21 +34,9 @@ const (
 // If a type does not support the given action ErrIDNotFound has
 // to be returned.
 type Eventer interface {
+	ID() string
 	Action(time.Time)
 	Event(Cmd) error
-}
-
-// EventerID takes an eventer and returns the ID. The function
-// uses the GetID Method of the EventSource.
-func EventerID(e Eventer) (string, error) {
-	type ider interface {
-		GetID() string
-	}
-	i, ok := e.(ider)
-	if !ok {
-		return "", fmt.Errorf("%T not supported", e)
-	}
-	return i.GetID(), nil
 }
 
 // Cmd defines the structure a event is defined. The Eventer needs
@@ -68,9 +55,9 @@ type EventSource struct {
 	Modified time.Time
 }
 
-// GetID returns the ID of the EventSource or the type
+// ID returns the ID of the EventSource or the type
 // which embeded this type.
-func (e EventSource) GetID() string {
+func (e EventSource) ID() string {
 	return e.id
 }
 

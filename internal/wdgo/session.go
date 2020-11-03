@@ -13,6 +13,13 @@ type Session struct {
 	End   time.Time
 }
 
+// NewSession creates a session with a unmutable id
+func NewSession(id string) *Session {
+	s := Session{}
+	s.id = id
+	return &s
+}
+
 // Event implements the Eventer-Interface
 func (s *Session) Event(cmd Cmd) error {
 	var err error

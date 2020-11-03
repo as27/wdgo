@@ -12,8 +12,16 @@ type Card struct {
 	Stage       *Stage
 	Description string
 	SupportID   string
+	Customer    string
 	Comments    []*Comment
 	Sessions    []*Session
+}
+
+// NewCard creates a card with a given id
+func NewCard(id string) *Card {
+	c := Card{}
+	c.id = id
+	return &c
 }
 
 // Event implements the Eventer-interface.
@@ -21,6 +29,7 @@ type Card struct {
 //  * Name
 //  * Description
 //  * SupportID
+//  * Customer
 //  * MoveTo
 //  * AddSession
 //  * AddComment
@@ -32,6 +41,8 @@ func (c *Card) Event(cmd Cmd) error {
 		c.Description = cmd.Value
 	case "SupportID":
 		c.SupportID = cmd.Value
+	case "Customer":
+		c.Customer = cmd.Value
 	case "MoveTo":
 		pos, err := strconv.Atoi(cmd.Value)
 		if err != nil {
@@ -48,13 +59,11 @@ func (c *Card) Event(cmd Cmd) error {
 		}
 		c.Stage.Cards = cards
 	case "AddSession":
-		s := &Session{}
-		s.id = cmd.Value
+		s := NewSession(cmd.Value)
 		s.Card = c
 		c.Sessions = append(c.Sessions, s)
 	case "AddComment":
-		cc := &Comment{}
-		cc.id = cmd.Value
+		cc := NewComment(cmd.Value)
 		cc.Card = c
 		c.Comments = append(c.Comments, cc)
 	default:

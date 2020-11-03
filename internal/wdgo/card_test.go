@@ -6,7 +6,7 @@ import (
 )
 
 func TestCardEventName(t *testing.T) {
-	c := &Card{}
+	c := NewCard("1")
 	c.Event(Cmd{"Name", "New Name"})
 	if c.Name != "New Name" {
 		t.Errorf("expect: New Name\ngot:%s", c.Name)
@@ -14,16 +14,20 @@ func TestCardEventName(t *testing.T) {
 }
 
 func TestCardEventFields(t *testing.T) {
-	c := &Card{}
+	c := NewCard("1")
 	c.Event(Cmd{"Name", "New Name"})
 	c.Event(Cmd{"Description", "Hello you"})
 	c.Event(Cmd{"SupportID", "1223"})
+	c.Event(Cmd{"Customer", "abc AB"})
 
 	if c.Description != "Hello you" {
 		t.Errorf("expect description: Hello you\ngot:%s", c.Name)
 	}
 	if c.SupportID != "1223" {
-		t.Errorf("expect Support.id 1223\ngot:%s", c.Name)
+		t.Errorf("expect Support.id 1223\ngot:%s", c.SupportID)
+	}
+	if c.Customer != "abc AB" {
+		t.Errorf("expect Custommer abc AB\ngot:%s", c.Customer)
 	}
 }
 
@@ -109,7 +113,7 @@ func TestCardFind(t *testing.T) {
 			if err != nil {
 				t.Errorf("no error expected. got: %s", err)
 			}
-			gotID, _ := EventerID(e)
+			gotID := e.ID()
 			if gotID != id {
 				t.Errorf("expect .id %s\ngot: %s", id, gotID)
 			}

@@ -13,6 +13,13 @@ type Stage struct {
 	Cards []*Card
 }
 
+// NewStage creates a stage with an inmutable id
+func NewStage(id string) *Stage {
+	s := Stage{}
+	s.id = id
+	return &s
+}
+
 // Event implements the Eventer-interface.
 // Following actions are implemented:
 //  * Name
@@ -23,8 +30,7 @@ func (s *Stage) Event(cmd Cmd) error {
 	case "Name":
 		s.Name = cmd.Value
 	case "AddCard":
-		c := &Card{}
-		c.id = cmd.Value
+		c := NewCard(cmd.Value)
 		c.Stage = s
 		s.Cards = append(s.Cards, c)
 	case "MoveTo":

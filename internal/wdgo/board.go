@@ -11,6 +11,13 @@ type Board struct {
 	Stages []*Stage
 }
 
+// NewBoard creates a board with a given id
+func NewBoard(id string) *Board {
+	b := Board{}
+	b.id = id
+	return &b
+}
+
 // Event implements the eventer-interface for Board.
 // It implements:
 //   * Name
@@ -20,10 +27,9 @@ func (b *Board) Event(cmd Cmd) error {
 	case "Name":
 		b.Name = cmd.Value
 	case "AddStage":
-		s := Stage{}
-		s.id = cmd.Value
+		s := NewStage(cmd.Value)
 		s.Board = b
-		b.Stages = append(b.Stages, &s)
+		b.Stages = append(b.Stages, s)
 	default:
 		return fmt.Errorf("%w: %s", ErrNoSuchAction, cmd.Action)
 	}
