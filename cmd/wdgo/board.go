@@ -2,7 +2,6 @@ package main
 
 import (
 	"io"
-	"log"
 
 	"github.com/gdamore/tcell/v2"
 	"github.com/rivo/tview"
@@ -12,15 +11,21 @@ func (a *app) boardEvents(event *tcell.EventKey) *tcell.EventKey {
 	activeBoard := &a.boards[a.activeBoard]
 	cardsInBoard := len(activeBoard.board.Stages[activeBoard.activeStage].Cards)
 
-	log.Println(len(activeBoard.stageviews))
 	switch event.Key() {
 	case tcell.KeyBackspace:
 		a.pages.SwitchToPage("home")
 		a.root.SetFocus(a.home)
-	case tcell.KeyTAB:
+	case tcell.KeyTAB, tcell.KeyRight:
 		activeBoard.activeStage++
 		if activeBoard.activeStage >= len(activeBoard.board.Stages) {
 			activeBoard.activeStage = 0
+		}
+		activeBoard.activeCard = 0
+		a.renderBoard()
+	case tcell.KeyBacktab, tcell.KeyLeft:
+		activeBoard.activeStage--
+		if activeBoard.activeStage < 0 {
+			activeBoard.activeStage = len(activeBoard.board.Stages) - 1
 		}
 		activeBoard.activeCard = 0
 		a.renderBoard()
@@ -36,7 +41,9 @@ func (a *app) boardEvents(event *tcell.EventKey) *tcell.EventKey {
 			activeBoard.activeCard = cardsInBoard - 1
 		}
 		a.renderBoard()
-
+	case tcell.KeyCtrlN:
+	case tcell.KeyEnter:
+		a.renderCard()
 	}
 	return event
 }

@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"log"
 
 	"github.com/as27/wdgo/internal/wdgo"
 	"github.com/gdamore/tcell/v2"
@@ -13,6 +12,7 @@ type app struct {
 	root        *tview.Application
 	pages       *tview.Pages
 	home        *tview.List
+	card        *tview.Form
 	activeBoard int
 	boards      []board
 }
@@ -31,6 +31,7 @@ func newApp() *app {
 		root:  tview.NewApplication(),
 		pages: tview.NewPages(),
 		home:  tview.NewList(),
+		card:  tview.NewForm(),
 	}
 	a.initBoards()
 	return &a
@@ -55,7 +56,6 @@ func (a *app) layout() error {
 
 func (a *app) inputCaptures(event *tcell.EventKey) *tcell.EventKey {
 	pageName, _ := a.pages.GetFrontPage()
-	log.Println(pageName)
 	switch pageName {
 	case "home":
 		a.homeEvents(event)
@@ -68,10 +68,6 @@ func (a *app) inputCaptures(event *tcell.EventKey) *tcell.EventKey {
 	if event.Key() == tcell.KeyEsc {
 		a.root.Stop()
 	}
-	return event
-}
-
-func (a *app) cardEvents(event *tcell.EventKey) *tcell.EventKey {
 	return event
 }
 
