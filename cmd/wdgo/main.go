@@ -20,7 +20,7 @@ func main() {
 		defer logfile.Close()
 		log.SetOutput(logfile)
 	}
-	a := &app{}
+	a := newApp()
 	if err := a.run(); err != nil {
 		panic(err)
 	}
