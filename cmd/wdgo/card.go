@@ -1,7 +1,9 @@
 package main
 
 import (
+	"github.com/as27/wdgo/internal/wdgo"
 	"github.com/gdamore/tcell/v2"
+	"github.com/google/uuid"
 )
 
 func (a *app) cardEvents(event *tcell.EventKey) *tcell.EventKey {
@@ -12,10 +14,13 @@ func (a *app) cardEvents(event *tcell.EventKey) *tcell.EventKey {
 	return event
 }
 
-func (a *app) renderCard() error {
+func (a *app) renderCard(mode string) error {
 	activeBoard := &a.boards[a.activeBoard]
 	activeStage := activeBoard.board.Stages[activeBoard.activeStage]
-	activeCard := activeStage.Cards[activeBoard.activeCard]
+	activeCard := &wdgo.Card{}
+	if mode == "edit" {
+		activeCard = activeStage.Cards[activeBoard.activeCard]
+	}
 	a.card.Clear(true)
 	edited := *activeCard
 	stages := []string{}
@@ -32,7 +37,37 @@ func (a *app) renderCard() error {
 		func(text string) { edited.Customer = text })
 	a.card.AddDropDown("Stage", stages, activeBoard.activeStage, nil)
 	a.card.AddButton("Save", func() {
-		*activeCard = edited
+		if mode == "add" {
+			id := uuid.New().String()
+			activeBoard.aggregator.NewEvent(activeStage.ID(), "AddCard", id)
+			if edited.Name != "" {
+				activeBoard.aggregator.NewEvent(id, "Name", edited.Name)
+			}
+			if edited.Description != "" {
+				activeBoard.aggregator.NewEvent(id, "Description", edited.Description)
+			}
+			if edited.SupportID != "" {
+				activeBoard.aggregator.NewEvent(id, "SupportID", edited.SupportID)
+			}
+			if edited.Customer != "" {
+				activeBoard.aggregator.NewEvent(id, "Customer", edited.Customer)
+			}
+		} else {
+			id := activeCard.ID()
+			if edited.Name != activeCard.Name {
+				activeBoard.aggregator.NewEvent(id, "Name", edited.Name)
+			}
+			if edited.Description != activeCard.Description {
+				activeBoard.aggregator.NewEvent(id, "Description", edited.Description)
+			}
+			if edited.SupportID != activeCard.SupportID {
+				activeBoard.aggregator.NewEvent(id, "SupportID", edited.SupportID)
+			}
+			if edited.Customer != activeCard.Customer {
+				activeBoard.aggregator.NewEvent(id, "Customer", edited.Customer)
+			}
+		}
+		activeBoard.aggregator.State()
 		a.renderBoard()
 	})
 	a.card.AddButton("Cancel", func() {

@@ -4,11 +4,17 @@
 package estore
 
 import (
+	"bufio"
+	"fmt"
+	"io"
 	"log"
+	"strings"
 	"time"
 
 	"github.com/as27/wdgo/internal/wdgo"
 )
+
+const fileSeparator = "|"
 
 // Event is used by the aggregator to create a state of the
 // board.
@@ -89,4 +95,41 @@ func (a *Aggregator) Version(version int) {
 		ee.Action(e.time)
 		a.version = i
 	}
+}
+
+func (a *Aggregator) SaveEvents(w io.Writer) error {
+	for _, e := range a.events {
+		s := []string{
+			e.time.Format(wdgo.TimeFormat),
+			e.id,
+			e.cmd.Action,
+			e.cmd.Value,
+		}
+		_, err := fmt.Fprintln(w, strings.Join(s, fileSeparator))
+		if err != nil {
+			return fmt.Errorf("aggregator.SaveEvents: %w", err)
+		}
+	}
+	return nil
+}
+
+func (a *Aggregator) LoadEvents(r io.Reader) error {
+	scanner := bufio.NewScanner(r)
+	for scanner.Scan() {
+		s := strings.Split(scanner.Text(), fileSeparator)
+		t, err := time.Parse(wdgo.TimeFormat, s[0])
+		if err != nil {
+			return fmt.Errorf("aggregator.LoadEvents: %w", err)
+		}
+		e := Event{
+			time: t,
+			id:   s[1],
+			cmd: wdgo.Cmd{
+				Action: s[2],
+				Value:  s[3],
+			},
+		}
+		a.Event(e)
+	}
+	return nil
 }

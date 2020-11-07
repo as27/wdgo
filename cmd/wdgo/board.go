@@ -42,9 +42,17 @@ func (a *app) boardEvents(event *tcell.EventKey) *tcell.EventKey {
 			activeBoard.activeCard = cardsInBoard - 1
 		}
 		a.renderBoard()
+	case tcell.KeyCtrlE:
+		// edit stage
+		a.renderEditStage("edit")
+	case tcell.KeyCtrlA:
+		// add stage
+		a.renderEditStage("add")
 	case tcell.KeyCtrlN:
+		// new card
+		a.renderCard("add")
 	case tcell.KeyEnter:
-		a.renderCard()
+		a.renderCard("edit")
 	}
 	return event
 }

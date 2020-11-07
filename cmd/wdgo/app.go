@@ -6,6 +6,7 @@ import (
 	"io"
 	"log"
 	"os"
+	"path/filepath"
 	"strings"
 
 	"github.com/as27/wdgo/internal/estore"
@@ -19,6 +20,7 @@ type app struct {
 	pages       *tview.Pages
 	home        *tview.List
 	card        *tview.Form
+	stage       *tview.Form
 	activeBoard int
 	boards      []board
 	path        appPaths
@@ -45,6 +47,7 @@ func newApp(p appPaths) *app {
 		pages: tview.NewPages(),
 		home:  tview.NewList(),
 		card:  tview.NewForm(),
+		stage: tview.NewForm(),
 		path:  p,
 	}
 	err := a.initBoards()
@@ -81,6 +84,8 @@ func (a *app) inputCaptures(event *tcell.EventKey) *tcell.EventKey {
 		a.boardEvents(event)
 	case "card":
 		a.cardEvents(event)
+	case "stage":
+		a.stageEvents(event)
 	}
 	// global key bindings
 	if event.Key() == tcell.KeyEsc {
@@ -144,6 +149,10 @@ func (a *app) initBoards() error {
 	if err != nil {
 		return fmt.Errorf("app.stop().initBoards.read: %w", err)
 	}
+	err = a.loadEvents()
+	if err != nil {
+		return fmt.Errorf("app.stop().loadEvents.read: %w", err)
+	}
 	return nil
 }
 
@@ -157,6 +166,41 @@ func (a *app) stop() error {
 	if err != nil {
 		return fmt.Errorf("app.stop().writeBoards: %w", err)
 	}
+	err = a.writeEvents()
+	if err != nil {
+		return fmt.Errorf("app.stop().writeEvents: %w", err)
+	}
 	a.root.Stop()
+	return nil
+}
+
+func (a *app) writeEvents() error {
+	for _, b := range a.boards {
+		fd, err := os.Create(filepath.Join(a.path.event, b.board.ID()))
+		if err != nil {
+			return fmt.Errorf("writeEvents.%s.:%w", b.board.Name, err)
+		}
+		err = b.aggregator.SaveEvents(fd)
+		if err != nil {
+			return fmt.Errorf("writeEvents.%s.:%w", b.board.Name, err)
+		}
+		fd.Close()
+	}
+	return nil
+}
+
+func (a *app) loadEvents() error {
+	for _, b := range a.boards {
+		fd, err := os.Open(filepath.Join(a.path.event, b.board.ID()))
+		if err != nil {
+			return fmt.Errorf("loadEvents.%s.:%w", b.board.Name, err)
+		}
+		err = b.aggregator.LoadEvents(fd)
+		if err != nil {
+			return fmt.Errorf("loadEvents.%s.:%w", b.board.Name, err)
+		}
+		fd.Close()
+		b.aggregator.State()
+	}
 	return nil
 }
