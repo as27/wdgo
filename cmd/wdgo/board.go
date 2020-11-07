@@ -4,6 +4,7 @@ import (
 	"io"
 
 	"github.com/gdamore/tcell/v2"
+	"github.com/google/uuid"
 	"github.com/rivo/tview"
 )
 
@@ -56,6 +57,13 @@ func (a *app) renderBoard() error {
 	activeBoard.view.Clear()
 	a.boards[a.activeBoard].stageviews = []*tview.Flex{}
 	a.boards[a.activeBoard].cardviews = [][]*tview.TextView{}
+	if len(activeBoard.board.Stages) == 0 {
+		id := uuid.New().String()
+		activeBoard.aggregator.NewEvent(
+			activeBoard.board.ID(), "AddStage", id)
+		activeBoard.aggregator.NewEvent(id, "Name", "New Stage")
+		activeBoard.aggregator.State()
+	}
 	for snr, s := range activeBoard.board.Stages {
 		stage := tview.NewFlex()
 		stage.SetTitle(s.Name).SetBorder(true)

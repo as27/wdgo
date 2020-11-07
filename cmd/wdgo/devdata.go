@@ -8,7 +8,7 @@ import (
 // This file is just for development purpose until
 // the elements can be added over the gui
 
-func (a *app) initBoards() {
+func (a *app) initBoardsTest() {
 	b := wdgo.NewBoard(uuid.New().String())
 	b.Name = "Board 1"
 	id := uuid.New().String()
@@ -41,9 +41,4 @@ func (a *app) initBoards() {
 	b = wdgo.NewBoard(uuid.New().String())
 	b.Name = "Board 2"
 	a.addBoard(b)
-}
-
-func (a *app) addBoard(b *wdgo.Board) {
-	bb := board{board: b}
-	a.boards = append(a.boards, bb)
 }

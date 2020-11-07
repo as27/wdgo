@@ -1,6 +1,8 @@
 package main
 
 import (
+	"log"
+
 	"github.com/gdamore/tcell/v2"
 )
 
@@ -21,7 +23,10 @@ func (a *app) renderHome() error {
 	}
 	a.home.AddItem("New Board", "create a new board", '+', nil)
 	a.home.AddItem("Quit", "", 'Q', func() {
-		a.root.Stop()
+		err := a.stop()
+		if err != nil {
+			log.Println(err)
+		}
 	})
 	return nil
 }

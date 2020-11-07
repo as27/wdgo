@@ -14,8 +14,19 @@ import (
 // board.
 type Event struct {
 	id   string
-	Time time.Time
-	Cmd  wdgo.Cmd
+	time time.Time
+	cmd  wdgo.Cmd
+}
+
+func NewEvent(id, action, value string) Event {
+	return Event{
+		id:   id,
+		time: time.Now(),
+		cmd: wdgo.Cmd{
+			Action: action,
+			Value:  value,
+		},
+	}
 }
 
 // Aggregator is used to aggregate the state of a board over
@@ -41,9 +52,13 @@ func (a *Aggregator) Event(e Event) {
 	a.events = append(a.events, e)
 }
 
+func (a *Aggregator) NewEvent(id, action, value string) {
+	a.Event(NewEvent(id, action, value))
+}
+
 // Init deletes the state of the board.
 func (a *Aggregator) Init() {
-	a.board.Name = ""
+	//a.board.Name = ""
 	a.board.Created = time.Time{}
 	a.board.Modified = time.Time{}
 	a.board.Stages = []*wdgo.Stage{}
@@ -67,11 +82,11 @@ func (a *Aggregator) Version(version int) {
 			log.Println("Error: Aggregator.State: cannot find id: ", err)
 			continue
 		}
-		err = ee.Event(e.Cmd)
+		err = ee.Event(e.cmd)
 		if err != nil {
 			log.Println("Error: Aggregator.State: ee.Event: ", err)
 		}
-		ee.Action(e.Time)
+		ee.Action(e.time)
 		a.version = i
 	}
 }

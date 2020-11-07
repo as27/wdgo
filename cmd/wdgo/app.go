@@ -1,8 +1,14 @@
 package main
 
 import (
+	"bufio"
 	"fmt"
+	"io"
+	"log"
+	"os"
+	"strings"
 
+	"github.com/as27/wdgo/internal/estore"
 	"github.com/as27/wdgo/internal/wdgo"
 	"github.com/gdamore/tcell/v2"
 	"github.com/rivo/tview"
@@ -15,25 +21,37 @@ type app struct {
 	card        *tview.Form
 	activeBoard int
 	boards      []board
+	path        appPaths
 }
 
 type board struct {
 	view        *tview.Flex
 	board       *wdgo.Board
+	aggregator  *estore.Aggregator
 	stageviews  []*tview.Flex
 	cardviews   [][]*tview.TextView
 	activeStage int
 	activeCard  int
 }
 
-func newApp() *app {
+type appPaths struct {
+	app   string
+	event string
+}
+
+func newApp(p appPaths) *app {
 	a := app{
 		root:  tview.NewApplication(),
 		pages: tview.NewPages(),
 		home:  tview.NewList(),
 		card:  tview.NewForm(),
+		path:  p,
 	}
-	a.initBoards()
+	err := a.initBoards()
+	if err != nil {
+		log.Println("cannot init boards")
+		panic(err)
+	}
 	return &a
 }
 
@@ -66,7 +84,7 @@ func (a *app) inputCaptures(event *tcell.EventKey) *tcell.EventKey {
 	}
 	// global key bindings
 	if event.Key() == tcell.KeyEsc {
-		a.root.Stop()
+		a.stop()
 	}
 	return event
 }
@@ -76,4 +94,69 @@ func (a *app) setCard() error {
 	//	a.view.card.SetTitle("Card")
 	return nil
 }
-func (a *app) setFoo() error { return nil }
+
+func (a *app) addBoard(b *wdgo.Board) {
+	bb := board{
+		view:        tview.NewFlex(),
+		board:       b,
+		aggregator:  estore.NewAggregator(b),
+		stageviews:  []*tview.Flex{},
+		cardviews:   [][]*tview.TextView{},
+		activeStage: 0,
+		activeCard:  0,
+	}
+	a.boards = append(a.boards, bb)
+}
+
+func (a *app) writeBoards(w io.Writer) error {
+	for _, b := range a.boards {
+		fmt.Fprintf(w, "%s|%s\n", b.board.ID(), b.board.Name)
+	}
+	return nil
+}
+
+// readBoards expect a simple logic
+// [id]|[name]
+// 12312323-21232a|board 1
+func (a *app) readBoards(r io.Reader) error {
+	scanner := bufio.NewScanner(r)
+	for scanner.Scan() {
+		txt := scanner.Text()
+		e := strings.Split(txt, "|")
+		if len(e) != 2 {
+			return fmt.Errorf("wrong input line: %s", txt)
+		}
+		id, name := e[0], e[1]
+		b := wdgo.NewBoard(id)
+		b.Name = name
+		a.addBoard(b)
+	}
+	return nil
+}
+
+func (a *app) initBoards() error {
+	bfile, err := os.Open(a.path.app)
+	if err != nil {
+		return fmt.Errorf("app.initBoards(): %w", err)
+	}
+	defer bfile.Close()
+	err = a.readBoards(bfile)
+	if err != nil {
+		return fmt.Errorf("app.stop().initBoards.read: %w", err)
+	}
+	return nil
+}
+
+func (a *app) stop() error {
+	bfile, err := os.Create(a.path.app)
+	if err != nil {
+		return fmt.Errorf("app.stop(): %w", err)
+	}
+	defer bfile.Close()
+	err = a.writeBoards(bfile)
+	if err != nil {
+		return fmt.Errorf("app.stop().writeBoards: %w", err)
+	}
+	a.root.Stop()
+	return nil
+}
