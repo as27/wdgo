@@ -58,6 +58,30 @@ func TestCardEventMoveTo(t *testing.T) {
 	}
 }
 
+func TestCardEventMoveToStage(t *testing.T) {
+	b := Board{}
+	b.id = "1"
+	b.Name = "Testboard"
+	b.Event(Cmd{"AddStage", "s0"})
+	b.Event(Cmd{"AddStage", "s1"})
+	e, _ := b.Find("s1")
+	e.Event(Cmd{"AddCard", "c0"})
+	e.Event(Cmd{"AddCard", "c1"})
+	e, _ = b.Find("c1")
+	e.Event(Cmd{"MoveToStage", "s0"})
+	s0 := b.Stages[0]
+	s1 := b.Stages[1]
+	if len(s0.Cards) != 1 || len(s1.Cards) != 1 {
+		t.Errorf("No card moved")
+	}
+	e, _ = b.Find("c1")
+	c1 := e.(*Card)
+	if c1.Stage.ID() != "s0" || s0.Cards[0].ID() != "c1" {
+		t.Errorf("c1 card not moved to s0")
+	}
+
+}
+
 func TestAddSession(t *testing.T) {
 	b := Board{}
 	b.id = "1"
@@ -116,6 +140,26 @@ func TestCardFind(t *testing.T) {
 			gotID := e.ID()
 			if gotID != id {
 				t.Errorf("expect .id %s\ngot: %s", id, gotID)
+			}
+		})
+	}
+}
+
+func TestCardPos(t *testing.T) {
+	b := Board{}
+	b.id = "1"
+	b.Name = "Testboard"
+	b.Event(Cmd{"AddStage", "s0"})
+	b.Event(Cmd{"AddStage", "s1"})
+	e, _ := b.Find("s1")
+	cards := []string{"c0", "c1", "c2", "c3"}
+	for i, c := range cards {
+		e.Event(Cmd{"AddCard", c})
+
+		t.Run(c, func(t *testing.T) {
+			got := b.Stages[1].Cards[i].Pos()
+			if got != i {
+				t.Errorf("card %s is on pos %d: got: %d", c, i, got)
 			}
 		})
 	}

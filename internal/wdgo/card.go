@@ -58,6 +58,26 @@ func (c *Card) Event(cmd Cmd) error {
 			}
 		}
 		c.Stage.Cards = cards
+	case "MoveToStage":
+		e, err := c.Stage.Board.Find(cmd.Value)
+		if err != nil {
+			return fmt.Errorf("MoveToStage: %s not found: %w",
+				cmd.Value, err)
+		}
+		stage, ok := e.(*Stage)
+		if !ok {
+			return fmt.Errorf("id: %s is not a stage", cmd.Value)
+		}
+		stage.Cards = append(stage.Cards, c)
+		cards := []*Card{}
+		for _, cc := range c.Stage.Cards {
+			if c.ID() == cc.ID() {
+				continue
+			}
+			cards = append(cards, cc)
+		}
+		c.Stage.Cards = cards // set the cards of the old stage
+		c.Stage = stage       // internal point to the new stage
 	case "AddSession":
 		s := NewSession(cmd.Value)
 		s.Card = c
@@ -96,4 +116,14 @@ func (c *Card) Find(id string) (Eventer, error) {
 		}
 	}
 	return nil, ErrIDNotFound
+}
+
+// Pos returns the position inside the stage
+func (c *Card) Pos() int {
+	for i, cc := range c.Stage.Cards {
+		if c.ID() == cc.ID() {
+			return i
+		}
+	}
+	return -1
 }

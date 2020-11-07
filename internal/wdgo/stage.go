@@ -71,3 +71,13 @@ func (s *Stage) Find(id string) (Eventer, error) {
 	}
 	return nil, ErrIDNotFound
 }
+
+// Pos returns the position inside the board
+func (s *Stage) Pos() int {
+	for i, ss := range s.Board.Stages {
+		if s.ID() == ss.ID() {
+			return i
+		}
+	}
+	return -1
+}
