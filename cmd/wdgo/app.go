@@ -143,6 +143,9 @@ func (a *app) readBoards(r io.Reader) error {
 func (a *app) initBoards() error {
 	bfile, err := os.Open(a.path.app)
 	if err != nil {
+		if os.IsNotExist(err) {
+			return nil
+		}
 		return fmt.Errorf("app.initBoards(): %w", err)
 	}
 	defer bfile.Close()
