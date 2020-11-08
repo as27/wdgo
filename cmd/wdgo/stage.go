@@ -43,7 +43,7 @@ func (a *app) renderEditStage(mode string) error {
 	a.stage.AddButton("Cancel", func() {
 		a.renderBoard()
 	})
-
+	a.stage.SetTitle("stage properties").SetBorder(true)
 	a.pages.AddAndSwitchToPage("stage", a.stage, true)
 	a.root.SetFocus(a.stage)
 	return nil

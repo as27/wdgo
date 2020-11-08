@@ -21,6 +21,7 @@ type app struct {
 	home        *tview.List
 	card        *tview.Form
 	stage       *tview.Form
+	newBoard    *tview.Form
 	activeBoard int
 	boards      []board
 	path        appPaths
@@ -44,12 +45,13 @@ type appPaths struct {
 
 func newApp(p appPaths) *app {
 	a := app{
-		root:  tview.NewApplication(),
-		pages: tview.NewPages(),
-		home:  tview.NewList(),
-		card:  tview.NewForm(),
-		stage: tview.NewForm(),
-		path:  p,
+		root:     tview.NewApplication(),
+		pages:    tview.NewPages(),
+		home:     tview.NewList(),
+		card:     tview.NewForm(),
+		stage:    tview.NewForm(),
+		newBoard: tview.NewForm(),
+		path:     p,
 	}
 	err := a.initBoards()
 	if err != nil {
@@ -143,6 +145,9 @@ func (a *app) readBoards(r io.Reader) error {
 func (a *app) initBoards() error {
 	bfile, err := os.Open(a.path.app)
 	if err != nil {
+		if os.IsNotExist(err) {
+			return nil
+		}
 		return fmt.Errorf("app.initBoards(): %w", err)
 	}
 	defer bfile.Close()
@@ -158,6 +163,10 @@ func (a *app) initBoards() error {
 }
 
 func (a *app) stop() error {
+	err := os.MkdirAll(filepath.Dir(a.path.app), 0666)
+	if err != nil {
+		return fmt.Errorf("app.stop():MkdirAll: %w", err)
+	}
 	bfile, err := os.Create(a.path.app)
 	if err != nil {
 		return fmt.Errorf("app.stop(): %w", err)
@@ -176,10 +185,14 @@ func (a *app) stop() error {
 }
 
 func (a *app) writeEvents() error {
+	err := os.MkdirAll(a.path.event, 0666)
+	if err != nil {
+		return fmt.Errorf("app.writeEvents() MkdirAll: %w", err)
+	}
 	for _, b := range a.boards {
 		fd, err := os.Create(filepath.Join(a.path.event, b.board.ID()))
 		if err != nil {
-			return fmt.Errorf("writeEvents.%s.:%w", b.board.Name, err)
+			return fmt.Errorf("writeEvents.Create:%s.:%w", b.board.Name, err)
 		}
 		err = b.aggregator.SaveEvents(fd)
 		if err != nil {
