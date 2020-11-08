@@ -27,6 +27,7 @@ func (a *app) renderCard(mode string) error {
 	for _, s := range activeBoard.board.Stages {
 		stages = append(stages, s.Name)
 	}
+	stageIndex := activeBoard.activeStage
 	a.card.AddInputField("Name", activeCard.Name, 20, nil,
 		func(text string) { edited.Name = text })
 	a.card.AddInputField("Description", activeCard.Description, 20, nil,
@@ -35,7 +36,9 @@ func (a *app) renderCard(mode string) error {
 		func(text string) { edited.SupportID = text })
 	a.card.AddInputField("Customer", activeCard.Customer, 20, nil,
 		func(text string) { edited.Customer = text })
-	a.card.AddDropDown("Stage", stages, activeBoard.activeStage, nil)
+	a.card.AddDropDown("Stage", stages, activeBoard.activeStage, func(option string, optionIndex int) {
+		stageIndex = optionIndex
+	})
 	a.card.AddButton("Save", func() {
 		if mode == "add" {
 			id := uuid.New().String()
@@ -66,6 +69,10 @@ func (a *app) renderCard(mode string) error {
 			if edited.Customer != activeCard.Customer {
 				activeBoard.aggregator.NewEvent(id, "Customer", edited.Customer)
 			}
+		}
+		if activeBoard.activeStage != stageIndex {
+			activeBoard.aggregator.NewEvent(activeCard.ID(),
+				"MoveToStage", activeBoard.board.Stages[stageIndex].ID())
 		}
 		activeBoard.aggregator.State()
 		a.renderBoard()
