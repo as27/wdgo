@@ -2,6 +2,7 @@ package main
 
 import (
 	"io"
+	"strconv"
 
 	"github.com/gdamore/tcell/v2"
 	"github.com/google/uuid"
@@ -10,6 +11,7 @@ import (
 
 func (a *app) boardEvents(event *tcell.EventKey) *tcell.EventKey {
 	activeBoard := &a.boards[a.activeBoard]
+	activeStage := activeBoard.board.Stages[activeBoard.activeStage]
 	cardsInBoard := len(activeBoard.board.Stages[activeBoard.activeStage].Cards)
 
 	switch event.Key() {
@@ -31,18 +33,41 @@ func (a *app) boardEvents(event *tcell.EventKey) *tcell.EventKey {
 		activeBoard.activeCard = 0
 		a.renderBoard()
 	case tcell.KeyDown:
-		activeBoard.activeCard++
-		if activeBoard.activeCard >= cardsInBoard {
-			activeBoard.activeCard = 0
+		if activeBoard.cardSelected != nil {
+			pos := activeBoard.cardSelected.Pos()
+			pos++
+			if pos >= len(activeStage.Cards) {
+				pos = len(activeStage.Cards) - 1
+			}
+			activeBoard.aggregator.NewEvent(
+				activeBoard.cardSelected.ID(),
+				"MoveTo", strconv.Itoa(pos))
+			activeBoard.aggregator.State()
+		}
+		if activeBoard.activeCard < cardsInBoard-1 {
+			activeBoard.activeCard++
 		}
 		a.renderBoard()
 	case tcell.KeyUp:
-		activeBoard.activeCard--
-		if activeBoard.activeCard < 0 {
-			activeBoard.activeCard = cardsInBoard - 1
+		if activeBoard.cardSelected != nil {
+			pos := activeBoard.cardSelected.Pos()
+			if pos > 0 {
+				pos--
+				activeBoard.aggregator.NewEvent(
+					activeBoard.cardSelected.ID(),
+					"MoveTo", strconv.Itoa(pos))
+				activeBoard.aggregator.State()
+			}
+		}
+		if activeBoard.activeCard > 0 {
+			activeBoard.activeCard--
 		}
 		a.renderBoard()
 	case tcell.KeyCtrlE:
+		if activeBoard.cardSelected != nil {
+			a.renderCard("edit")
+			break
+		}
 		// edit stage
 		a.renderEditStage("edit")
 	case tcell.KeyCtrlA:
@@ -52,7 +77,13 @@ func (a *app) boardEvents(event *tcell.EventKey) *tcell.EventKey {
 		// new card
 		a.renderCard("add")
 	case tcell.KeyEnter:
-		a.renderCard("edit")
+		if activeBoard.cardSelected != nil {
+			activeBoard.cardSelected = nil
+		} else {
+			activeBoard.cardSelected = activeStage.Cards[activeBoard.activeCard]
+		}
+		a.renderBoard()
+		//a.renderCard("edit")
 	}
 	return event
 }
@@ -87,6 +118,10 @@ func (a *app) renderBoard() error {
 			txt.SetBorder(true)
 			if active && activeBoard.activeCard == cnr {
 				txt.SetBorderColor(tcell.ColorGreenYellow)
+				if activeBoard.cardSelected != nil {
+					txt.SetBackgroundColor(tcell.ColorWhite)
+					txt.SetTextColor(tcell.ColorBlack)
+				}
 			}
 			io.WriteString(txt, c.Name)
 			cards = append(cards, txt)

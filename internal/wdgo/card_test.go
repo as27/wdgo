@@ -45,12 +45,16 @@ func TestCardEventMoveTo(t *testing.T) {
 	e.Event(Cmd{"AddCard", "c4"})
 	e, _ = b.Find("c3")
 	e.Event(Cmd{"MoveTo", "1"})
+	e, _ = b.Find("c0")
+	e.Event(Cmd{"MoveTo", "1"})
+	e, _ = b.Find("c2")
+	e.Event(Cmd{"MoveTo", "4"})
 	s1 := b.Stages[1]
-	if s1.Cards[0].id != "c0" ||
-		s1.Cards[1].id != "c3" ||
+	if s1.Cards[0].id != "c3" ||
+		s1.Cards[1].id != "c0" ||
 		s1.Cards[2].id != "c1" ||
-		s1.Cards[3].id != "c2" ||
-		s1.Cards[4].id != "c4" {
+		s1.Cards[3].id != "c4" ||
+		s1.Cards[4].id != "c2" {
 		t.Error("CardMoveTo error")
 		for i, v := range s1.Cards {
 			fmt.Println(i, v.id)

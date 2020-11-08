@@ -27,13 +27,14 @@ type app struct {
 }
 
 type board struct {
-	view        *tview.Flex
-	board       *wdgo.Board
-	aggregator  *estore.Aggregator
-	stageviews  []*tview.Flex
-	cardviews   [][]*tview.TextView
-	activeStage int
-	activeCard  int
+	view         *tview.Flex
+	board        *wdgo.Board
+	aggregator   *estore.Aggregator
+	stageviews   []*tview.Flex
+	cardviews    [][]*tview.TextView
+	activeStage  int
+	activeCard   int
+	cardSelected *wdgo.Card
 }
 
 type appPaths struct {
