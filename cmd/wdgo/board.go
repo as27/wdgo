@@ -18,48 +18,61 @@ func (a *app) boardEvents(event *tcell.EventKey) *tcell.EventKey {
 	case tcell.KeyBackspace:
 		a.pages.SwitchToPage("home")
 		a.root.SetFocus(a.home)
-	case tcell.KeyTAB, tcell.KeyRight:
-		activeBoard.activeStage++
-		if activeBoard.activeStage >= len(activeBoard.board.Stages) {
-			activeBoard.activeStage = 0
+	case tcell.KeyRight:
+		if activeBoard.cardSelected != nil {
+			if activeBoard.activeStage < len(activeBoard.board.Stages)-1 {
+				activeBoard.activeStage++
+				activeBoard.aggregator.NewEvent(
+					activeBoard.cardSelected.ID(),
+					"MoveToStage",
+					activeBoard.board.Stages[activeBoard.activeStage].ID())
+				activeBoard.aggregator.State()
+				activeBoard.activeCard = len(activeBoard.board.Stages[activeBoard.activeStage].Cards) - 1
+			}
+		} else if activeBoard.activeStage < len(activeBoard.board.Stages)-1 {
+			activeBoard.activeStage++
+			activeBoard.activeCard = 0
 		}
-		activeBoard.activeCard = 0
 		a.renderBoard()
-	case tcell.KeyBacktab, tcell.KeyLeft:
-		activeBoard.activeStage--
-		if activeBoard.activeStage < 0 {
-			activeBoard.activeStage = len(activeBoard.board.Stages) - 1
+	case tcell.KeyLeft:
+		if activeBoard.cardSelected != nil {
+			if activeBoard.activeStage > 0 {
+				activeBoard.activeStage--
+				activeBoard.aggregator.NewEvent(
+					activeBoard.cardSelected.ID(),
+					"MoveToStage",
+					activeBoard.board.Stages[activeBoard.activeStage].ID())
+				activeBoard.aggregator.State()
+				activeBoard.activeCard = len(activeBoard.board.Stages[activeBoard.activeStage].Cards) - 1
+			}
+		} else if activeBoard.activeStage > 0 {
+			activeBoard.activeStage--
+			activeBoard.activeCard = 0
 		}
-		activeBoard.activeCard = 0
 		a.renderBoard()
 	case tcell.KeyDown:
 		if activeBoard.cardSelected != nil {
-			pos := activeBoard.cardSelected.Pos()
-			pos++
-			if pos >= len(activeStage.Cards) {
-				pos = len(activeStage.Cards) - 1
+			if activeBoard.activeCard < cardsInBoard-1 {
+				activeBoard.activeCard++
+				activeBoard.aggregator.NewEvent(
+					activeBoard.cardSelected.ID(),
+					"MoveTo", strconv.Itoa(activeBoard.activeCard))
+				activeBoard.aggregator.State()
 			}
-			activeBoard.aggregator.NewEvent(
-				activeBoard.cardSelected.ID(),
-				"MoveTo", strconv.Itoa(pos))
-			activeBoard.aggregator.State()
-		}
-		if activeBoard.activeCard < cardsInBoard-1 {
+		} else if activeBoard.activeCard < cardsInBoard-1 {
 			activeBoard.activeCard++
 		}
 		a.renderBoard()
 	case tcell.KeyUp:
 		if activeBoard.cardSelected != nil {
-			pos := activeBoard.cardSelected.Pos()
-			if pos > 0 {
-				pos--
+			if activeBoard.activeCard > 0 {
+				activeBoard.activeCard--
 				activeBoard.aggregator.NewEvent(
 					activeBoard.cardSelected.ID(),
-					"MoveTo", strconv.Itoa(pos))
+					"MoveTo", strconv.Itoa(activeBoard.activeCard))
 				activeBoard.aggregator.State()
 			}
-		}
-		if activeBoard.activeCard > 0 {
+		} else if activeBoard.activeCard > 0 {
 			activeBoard.activeCard--
 		}
 		a.renderBoard()
