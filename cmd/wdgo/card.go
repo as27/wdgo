@@ -80,7 +80,7 @@ func (a *app) renderCard(mode string) error {
 	a.card.AddButton("Cancel", func() {
 		a.renderBoard()
 	})
-
+	a.card.SetTitle("card properties").SetBorder(true)
 	a.pages.AddAndSwitchToPage("card", a.card, true)
 	a.root.SetFocus(a.card)
 	return nil

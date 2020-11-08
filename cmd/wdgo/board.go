@@ -167,7 +167,7 @@ func (a *app) renderNewBoard() {
 	a.newBoard.AddButton("Cancel", func() {
 		a.renderHome()
 	})
-
+	a.newBoard.SetTitle("board properties").SetBorder(true)
 	a.pages.AddAndSwitchToPage("newBoard", a.newBoard, true)
 	a.root.SetFocus(a.newBoard)
 }
