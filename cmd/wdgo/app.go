@@ -161,6 +161,10 @@ func (a *app) initBoards() error {
 }
 
 func (a *app) stop() error {
+	err := os.MkdirAll(filepath.Dir(a.path.app), 0666)
+	if err != nil {
+		return fmt.Errorf("app.stop():MkdirAll: %w", err)
+	}
 	bfile, err := os.Create(a.path.app)
 	if err != nil {
 		return fmt.Errorf("app.stop(): %w", err)
@@ -179,6 +183,10 @@ func (a *app) stop() error {
 }
 
 func (a *app) writeEvents() error {
+	err := os.MkdirAll(filepath.Dir(a.path.event), 0666)
+	if err != nil {
+		return fmt.Errorf("app.writeEvents() MkdirAll: %w", err)
+	}
 	for _, b := range a.boards {
 		fd, err := os.Create(filepath.Join(a.path.event, b.board.ID()))
 		if err != nil {
