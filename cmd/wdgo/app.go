@@ -21,6 +21,7 @@ type app struct {
 	home        *tview.List
 	card        *tview.Form
 	stage       *tview.Form
+	newBoard    *tview.Form
 	activeBoard int
 	boards      []board
 	path        appPaths
@@ -44,12 +45,13 @@ type appPaths struct {
 
 func newApp(p appPaths) *app {
 	a := app{
-		root:  tview.NewApplication(),
-		pages: tview.NewPages(),
-		home:  tview.NewList(),
-		card:  tview.NewForm(),
-		stage: tview.NewForm(),
-		path:  p,
+		root:     tview.NewApplication(),
+		pages:    tview.NewPages(),
+		home:     tview.NewList(),
+		card:     tview.NewForm(),
+		stage:    tview.NewForm(),
+		newBoard: tview.NewForm(),
+		path:     p,
 	}
 	err := a.initBoards()
 	if err != nil {
@@ -183,14 +185,14 @@ func (a *app) stop() error {
 }
 
 func (a *app) writeEvents() error {
-	err := os.MkdirAll(filepath.Dir(a.path.event), 0666)
+	err := os.MkdirAll(a.path.event, 0666)
 	if err != nil {
 		return fmt.Errorf("app.writeEvents() MkdirAll: %w", err)
 	}
 	for _, b := range a.boards {
 		fd, err := os.Create(filepath.Join(a.path.event, b.board.ID()))
 		if err != nil {
-			return fmt.Errorf("writeEvents.%s.:%w", b.board.Name, err)
+			return fmt.Errorf("writeEvents.Create:%s.:%w", b.board.Name, err)
 		}
 		err = b.aggregator.SaveEvents(fd)
 		if err != nil {
