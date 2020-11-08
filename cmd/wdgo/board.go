@@ -4,6 +4,7 @@ import (
 	"io"
 	"strconv"
 
+	"github.com/as27/wdgo/internal/wdgo"
 	"github.com/gdamore/tcell/v2"
 	"github.com/google/uuid"
 	"github.com/rivo/tview"
@@ -151,4 +152,22 @@ func (a *app) renderBoard() error {
 	}
 	a.pages.AddAndSwitchToPage("board", activeBoard.view, true)
 	return nil
+}
+
+func (a *app) renderNewBoard() {
+	a.newBoard.Clear(true)
+	newBoard := wdgo.NewBoard(uuid.New().String())
+	a.newBoard.AddInputField("Name", "", 20, nil, func(text string) {
+		newBoard.Name = text
+	})
+	a.newBoard.AddButton("Save", func() {
+		a.addBoard(newBoard)
+		a.renderHome()
+	})
+	a.newBoard.AddButton("Cancel", func() {
+		a.renderHome()
+	})
+
+	a.pages.AddAndSwitchToPage("newBoard", a.newBoard, true)
+	a.root.SetFocus(a.newBoard)
 }
