@@ -19,7 +19,7 @@ type app struct {
 	root        *tview.Application
 	pages       *tview.Pages
 	home        *tview.List
-	card        *tview.Form
+	card        cardViews
 	stage       *tview.Form
 	newBoard    *tview.Form
 	activeBoard int
@@ -38,6 +38,12 @@ type board struct {
 	cardSelected *wdgo.Card
 }
 
+type cardViews struct {
+	card     *tview.Flex
+	form     *tview.Form
+	sessions *tview.Table
+}
+
 type appPaths struct {
 	app   string
 	event string
@@ -45,10 +51,14 @@ type appPaths struct {
 
 func newApp(p appPaths) *app {
 	a := app{
-		root:     tview.NewApplication(),
-		pages:    tview.NewPages(),
-		home:     tview.NewList(),
-		card:     tview.NewForm(),
+		root:  tview.NewApplication(),
+		pages: tview.NewPages(),
+		home:  tview.NewList(),
+		card: cardViews{
+			card:     tview.NewFlex(),
+			form:     tview.NewForm(),
+			sessions: tview.NewTable(),
+		},
 		stage:    tview.NewForm(),
 		newBoard: tview.NewForm(),
 		path:     p,

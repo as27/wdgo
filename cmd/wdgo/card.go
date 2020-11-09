@@ -1,6 +1,8 @@
 package main
 
 import (
+	"time"
+
 	"github.com/as27/wdgo/internal/wdgo"
 	"github.com/gdamore/tcell/v2"
 	"github.com/google/uuid"
@@ -21,25 +23,42 @@ func (a *app) renderCard(mode string) error {
 	if mode == "edit" {
 		activeCard = activeStage.Cards[activeBoard.activeCard]
 	}
-	a.card.Clear(true)
+	a.card.form.Clear(true)
 	edited := *activeCard
 	stages := []string{}
 	for _, s := range activeBoard.board.Stages {
 		stages = append(stages, s.Name)
 	}
 	stageIndex := activeBoard.activeStage
-	a.card.AddInputField("Name", activeCard.Name, 20, nil,
+	if mode == "edit" {
+		a.card.form.AddButton("Start/Stop Session", func() {
+			now := time.Now().Format(wdgo.TimeFormat)
+			if (len(activeCard.Sessions) == 0 ||
+				activeCard.Sessions[len(activeCard.Sessions)-1].End != time.Time{}) {
+				// create new session
+				id := uuid.New().String()
+				activeBoard.aggregator.NewEvent(activeCard.ID(), "AddSession", id)
+				activeBoard.aggregator.NewEvent(id, "Start", now)
+			} else {
+				id := activeCard.Sessions[len(activeCard.Sessions)-1].ID()
+				activeBoard.aggregator.NewEvent(id, "End", now)
+			}
+			activeBoard.aggregator.State()
+			a.renderCard("edit")
+		})
+	}
+	a.card.form.AddInputField("Name", activeCard.Name, 20, nil,
 		func(text string) { edited.Name = text })
-	a.card.AddInputField("Description", activeCard.Description, 20, nil,
+	a.card.form.AddInputField("Description", activeCard.Description, 20, nil,
 		func(text string) { edited.Description = text })
-	a.card.AddInputField("Support ID", activeCard.SupportID, 20, nil,
+	a.card.form.AddInputField("Support ID", activeCard.SupportID, 20, nil,
 		func(text string) { edited.SupportID = text })
-	a.card.AddInputField("Customer", activeCard.Customer, 20, nil,
+	a.card.form.AddInputField("Customer", activeCard.Customer, 20, nil,
 		func(text string) { edited.Customer = text })
-	a.card.AddDropDown("Stage", stages, activeBoard.activeStage, func(option string, optionIndex int) {
+	a.card.form.AddDropDown("Stage", stages, activeBoard.activeStage, func(option string, optionIndex int) {
 		stageIndex = optionIndex
 	})
-	a.card.AddButton("Save", func() {
+	a.card.form.AddButton("Save", func() {
 		if mode == "add" {
 			id := uuid.New().String()
 			activeBoard.aggregator.NewEvent(activeStage.ID(), "AddCard", id)
@@ -73,15 +92,26 @@ func (a *app) renderCard(mode string) error {
 		if activeBoard.activeStage != stageIndex {
 			activeBoard.aggregator.NewEvent(activeCard.ID(),
 				"MoveToStage", activeBoard.board.Stages[stageIndex].ID())
+			activeBoard.activeStage = stageIndex
+			activeBoard.activeCard = 0
+			activeBoard.cardSelected = nil
 		}
 		activeBoard.aggregator.State()
 		a.renderBoard()
 	})
-	a.card.AddButton("Cancel", func() {
+	a.card.form.AddButton("Cancel", func() {
 		a.renderBoard()
 	})
-	a.card.SetTitle("card properties").SetBorder(true)
-	a.pages.AddAndSwitchToPage("card", a.card, true)
-	a.root.SetFocus(a.card)
+	a.card.form.SetTitle("card properties").SetBorder(true)
+	a.card.card.Clear()
+	a.card.card.AddItem(a.card.form, 0, 1, true)
+	if mode == "edit" {
+		a.renderSession()
+	} else {
+		a.card.sessions.Clear()
+	}
+	a.card.card.AddItem(a.card.sessions, 0, 1, false)
+	a.pages.AddAndSwitchToPage("card", a.card.card, true)
+	a.root.SetFocus(a.card.form)
 	return nil
 }
