@@ -38,7 +38,11 @@ func (s *Stage) Event(cmd Cmd) error {
 		if err != nil {
 			return fmt.Errorf("Stage.Event(MoveTo:%s):%w", cmd.Value, err)
 		}
+		oldPos := s.Pos()
 		stages := []*Stage{}
+		// remove stage from stack
+		s.Board.Stages = append(
+			s.Board.Stages[:oldPos], s.Board.Stages[oldPos+1:]...)
 		for i, v := range s.Board.Stages {
 			if i == pos {
 				stages = append(stages, s)
@@ -46,6 +50,10 @@ func (s *Stage) Event(cmd Cmd) error {
 			if v.id != s.id {
 				stages = append(stages, v)
 			}
+		}
+		// check if card moved to last position
+		if pos == len(s.Board.Stages) {
+			stages = append(stages, s)
 		}
 		s.Board.Stages = stages
 	default:

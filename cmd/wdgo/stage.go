@@ -1,6 +1,9 @@
 package main
 
 import (
+	"fmt"
+	"strconv"
+
 	"github.com/as27/wdgo/internal/wdgo"
 	"github.com/gdamore/tcell/v2"
 	"github.com/google/uuid"
@@ -26,8 +29,18 @@ func (a *app) renderEditStage(mode string) error {
 	a.stage.Clear(true)
 	edited := *activeStage
 
+	var stages []string
+	for i, s := range activeBoard.board.Stages {
+		stages = append(stages, fmt.Sprintf("%0d (%s)", i, s.Name))
+	}
+	stageIndex := activeBoard.activeStage
+
 	a.stage.AddInputField("Name", activeStage.Name, 20, nil,
 		func(text string) { edited.Name = text })
+
+	a.stage.AddDropDown("Position", stages, stageIndex, func(option string, optionIndex int) {
+		stageIndex = optionIndex
+	})
 
 	a.stage.AddButton("Save", func() {
 		if mode == "add" {
@@ -35,7 +48,14 @@ func (a *app) renderEditStage(mode string) error {
 			activeBoard.aggregator.NewEvent(activeBoard.board.ID(), "AddStage", id)
 			activeBoard.aggregator.NewEvent(id, "Name", edited.Name)
 		} else {
-			activeBoard.aggregator.NewEvent(activeStage.ID(), "Name", edited.Name)
+			if edited.Name != activeStage.Name {
+				activeBoard.aggregator.NewEvent(activeStage.ID(), "Name", edited.Name)
+			}
+		}
+		if stageIndex != activeBoard.activeStage {
+			activeBoard.aggregator.NewEvent(
+				activeStage.ID(),
+				"MoveTo", strconv.Itoa(stageIndex))
 		}
 		activeBoard.aggregator.State()
 		a.renderBoard()
