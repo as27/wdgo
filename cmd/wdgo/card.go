@@ -1,8 +1,6 @@
 package main
 
 import (
-	"time"
-
 	"github.com/as27/wdgo/internal/wdgo"
 	"github.com/gdamore/tcell/v2"
 	"github.com/google/uuid"
@@ -10,7 +8,7 @@ import (
 
 func (a *app) cardEvents(event *tcell.EventKey) *tcell.EventKey {
 	switch event.Key() {
-	case tcell.KeyCtrlQ:
+	case tcell.KeyEsc:
 		a.renderBoard()
 	}
 	return event
@@ -31,21 +29,7 @@ func (a *app) renderCard(mode string) error {
 	}
 	stageIndex := activeBoard.activeStage
 	if mode == "edit" {
-		a.card.form.AddButton("Start/Stop Session", func() {
-			now := time.Now().Format(wdgo.TimeFormat)
-			if (len(activeCard.Sessions) == 0 ||
-				activeCard.Sessions[len(activeCard.Sessions)-1].End != time.Time{}) {
-				// create new session
-				id := uuid.New().String()
-				activeBoard.aggregator.NewEvent(activeCard.ID(), "AddSession", id)
-				activeBoard.aggregator.NewEvent(id, "Start", now)
-			} else {
-				id := activeCard.Sessions[len(activeCard.Sessions)-1].ID()
-				activeBoard.aggregator.NewEvent(id, "End", now)
-			}
-			activeBoard.aggregator.State()
-			a.renderCard("edit")
-		})
+		a.card.form.AddButton("Start/Stop Session", a.sessionStartStop)
 	}
 	a.card.form.AddInputField("Name", activeCard.Name, 20, nil,
 		func(text string) { edited.Name = text })

@@ -97,11 +97,12 @@ func (a *app) inputCaptures(event *tcell.EventKey) *tcell.EventKey {
 		a.boardEvents(event)
 	case "card":
 		a.cardEvents(event)
+		a.sessionEvents(event)
 	case "stage":
 		a.stageEvents(event)
 	}
 	// global key bindings
-	if event.Key() == tcell.KeyEsc {
+	if event.Key() == tcell.KeyCtrlQ {
 		a.stop()
 	}
 	return event
