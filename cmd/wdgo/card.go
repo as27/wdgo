@@ -21,25 +21,25 @@ func (a *app) renderCard(mode string) error {
 	if mode == "edit" {
 		activeCard = activeStage.Cards[activeBoard.activeCard]
 	}
-	a.card.Clear(true)
+	a.card.form.Clear(true)
 	edited := *activeCard
 	stages := []string{}
 	for _, s := range activeBoard.board.Stages {
 		stages = append(stages, s.Name)
 	}
 	stageIndex := activeBoard.activeStage
-	a.card.AddInputField("Name", activeCard.Name, 20, nil,
+	a.card.form.AddInputField("Name", activeCard.Name, 20, nil,
 		func(text string) { edited.Name = text })
-	a.card.AddInputField("Description", activeCard.Description, 20, nil,
+	a.card.form.AddInputField("Description", activeCard.Description, 20, nil,
 		func(text string) { edited.Description = text })
-	a.card.AddInputField("Support ID", activeCard.SupportID, 20, nil,
+	a.card.form.AddInputField("Support ID", activeCard.SupportID, 20, nil,
 		func(text string) { edited.SupportID = text })
-	a.card.AddInputField("Customer", activeCard.Customer, 20, nil,
+	a.card.form.AddInputField("Customer", activeCard.Customer, 20, nil,
 		func(text string) { edited.Customer = text })
-	a.card.AddDropDown("Stage", stages, activeBoard.activeStage, func(option string, optionIndex int) {
+	a.card.form.AddDropDown("Stage", stages, activeBoard.activeStage, func(option string, optionIndex int) {
 		stageIndex = optionIndex
 	})
-	a.card.AddButton("Save", func() {
+	a.card.form.AddButton("Save", func() {
 		if mode == "add" {
 			id := uuid.New().String()
 			activeBoard.aggregator.NewEvent(activeStage.ID(), "AddCard", id)
@@ -77,11 +77,15 @@ func (a *app) renderCard(mode string) error {
 		activeBoard.aggregator.State()
 		a.renderBoard()
 	})
-	a.card.AddButton("Cancel", func() {
+	a.card.form.AddButton("Cancel", func() {
 		a.renderBoard()
 	})
-	a.card.SetTitle("card properties").SetBorder(true)
-	a.pages.AddAndSwitchToPage("card", a.card, true)
-	a.root.SetFocus(a.card)
+	a.card.form.SetTitle("card properties").SetBorder(true)
+	a.card.card.Clear()
+	a.card.card.AddItem(a.card.form, 0, 1, true)
+	a.card.sessions.SetBorder(true)
+	a.card.card.AddItem(a.card.sessions, 0, 1, false)
+	a.pages.AddAndSwitchToPage("card", a.card.card, true)
+	a.root.SetFocus(a.card.form)
 	return nil
 }
