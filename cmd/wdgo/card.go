@@ -92,6 +92,9 @@ func (a *app) renderCard(mode string) error {
 		if activeBoard.activeStage != stageIndex {
 			activeBoard.aggregator.NewEvent(activeCard.ID(),
 				"MoveToStage", activeBoard.board.Stages[stageIndex].ID())
+			activeBoard.activeStage = stageIndex
+			activeBoard.activeCard = 0
+			activeBoard.cardSelected = nil
 		}
 		activeBoard.aggregator.State()
 		a.renderBoard()
