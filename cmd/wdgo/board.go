@@ -19,6 +19,31 @@ func (a *app) boardEvents(event *tcell.EventKey) *tcell.EventKey {
 	case tcell.KeyBackspace:
 		a.pages.SwitchToPage("home")
 		a.root.SetFocus(a.home)
+	case tcell.KeyEsc:
+		activeBoard.cardSelected = nil
+	case tcell.KeyEnter:
+		if activeBoard.cardSelected == nil {
+			activeBoard.cardSelected = activeStage.Cards[activeBoard.activeCard]
+		} else {
+			// double enter
+			a.renderCard("edit")
+			break
+		}
+		a.renderBoard()
+		//a.renderCard("edit")
+	case tcell.KeyCtrlE:
+		if activeBoard.cardSelected != nil {
+			a.renderCard("edit")
+			break
+		}
+		// edit stage
+		a.renderEditStage("edit")
+	case tcell.KeyCtrlA:
+		// add stage
+		a.renderEditStage("add")
+	case tcell.KeyCtrlN:
+		// new card
+		a.renderCard("add")
 	case tcell.KeyRight:
 		if activeBoard.cardSelected != nil {
 			if activeBoard.activeStage < len(activeBoard.board.Stages)-1 {
@@ -77,27 +102,7 @@ func (a *app) boardEvents(event *tcell.EventKey) *tcell.EventKey {
 			activeBoard.activeCard--
 		}
 		a.renderBoard()
-	case tcell.KeyCtrlE:
-		if activeBoard.cardSelected != nil {
-			a.renderCard("edit")
-			break
-		}
-		// edit stage
-		a.renderEditStage("edit")
-	case tcell.KeyCtrlA:
-		// add stage
-		a.renderEditStage("add")
-	case tcell.KeyCtrlN:
-		// new card
-		a.renderCard("add")
-	case tcell.KeyEnter:
-		if activeBoard.cardSelected != nil {
-			activeBoard.cardSelected = nil
-		} else {
-			activeBoard.cardSelected = activeStage.Cards[activeBoard.activeCard]
-		}
-		a.renderBoard()
-		//a.renderCard("edit")
+
 	}
 	return event
 }

@@ -7,8 +7,11 @@ import (
 )
 
 func (a *app) cardEvents(event *tcell.EventKey) *tcell.EventKey {
+	activeBoard := &a.boards[a.activeBoard]
+	//activeStage := activeBoard.board.Stages[activeBoard.activeStage]
 	switch event.Key() {
 	case tcell.KeyEsc:
+		activeBoard.cardSelected = nil
 		a.renderBoard()
 	}
 	return event
