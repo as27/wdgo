@@ -81,12 +81,13 @@ func (a *app) renderCard(mode string) error {
 				"MoveToStage", activeBoard.board.Stages[stageIndex].ID())
 			activeBoard.activeStage = stageIndex
 			activeBoard.activeCard = 0
-			activeBoard.cardSelected = nil
 		}
+		activeBoard.cardSelected = nil
 		activeBoard.aggregator.State()
 		a.renderBoard()
 	})
 	a.card.form.AddButton("Cancel", func() {
+		activeBoard.cardSelected = nil
 		a.renderBoard()
 	})
 	a.card.form.SetTitle("card properties").SetBorder(true)

@@ -16,11 +16,16 @@ func (a *app) boardEvents(event *tcell.EventKey) *tcell.EventKey {
 	cardsInBoard := len(activeBoard.board.Stages[activeBoard.activeStage].Cards)
 
 	switch event.Key() {
-	case tcell.KeyBackspace:
-		a.pages.SwitchToPage("home")
-		a.root.SetFocus(a.home)
-	case tcell.KeyEsc:
-		activeBoard.cardSelected = nil
+	case tcell.KeyESC:
+		if activeBoard.cardSelected != nil {
+			// deselect if a card is selected
+			activeBoard.cardSelected = nil
+			a.renderBoard()
+		} else {
+			// go back with esc
+			a.pages.SwitchToPage("home")
+			a.root.SetFocus(a.home)
+		}
 	case tcell.KeyEnter:
 		if activeBoard.cardSelected == nil {
 			activeBoard.cardSelected = activeStage.Cards[activeBoard.activeCard]
@@ -30,7 +35,6 @@ func (a *app) boardEvents(event *tcell.EventKey) *tcell.EventKey {
 			break
 		}
 		a.renderBoard()
-		//a.renderCard("edit")
 	case tcell.KeyCtrlE:
 		if activeBoard.cardSelected != nil {
 			a.renderCard("edit")
