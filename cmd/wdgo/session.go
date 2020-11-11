@@ -41,7 +41,10 @@ func (a *app) renderSession() {
 	a.card.sessions.SetCell(len(activeCard.Sessions), 2,
 		tview.NewTableCell(sum.String()))
 	a.card.sessions.SetBorder(true)
-	a.card.sessions.SetBorders(true)
+	//a.card.sessions.SetBorders(true)
+	//a.card.sessions.scro
+	a.card.sessions.ScrollToBeginning()
+
 }
 
 func (a *app) sessionStartStop() {

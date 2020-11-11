@@ -13,6 +13,12 @@ func (a *app) cardEvents(event *tcell.EventKey) *tcell.EventKey {
 	case tcell.KeyEsc:
 		activeBoard.cardSelected = nil
 		a.renderBoard()
+	case tcell.KeyTAB:
+		if a.card.form.HasFocus() {
+			a.root.SetFocus(a.card.sessions)
+		} else {
+			a.root.SetFocus(a.card.form)
+		}
 	}
 	return event
 }
