@@ -4,6 +4,7 @@ import (
 	"github.com/as27/wdgo/internal/wdgo"
 	"github.com/gdamore/tcell/v2"
 	"github.com/google/uuid"
+	"github.com/rivo/tview"
 )
 
 func (a *app) cardEvents(event *tcell.EventKey) *tcell.EventKey {
@@ -16,7 +17,7 @@ func (a *app) cardEvents(event *tcell.EventKey) *tcell.EventKey {
 	case tcell.KeyTAB:
 		if a.card.form.HasFocus() {
 			a.root.SetFocus(a.card.sessions)
-		} else {
+		} else if a.card.sessions.HasFocus() {
 			a.root.SetFocus(a.card.form)
 		}
 	}
@@ -104,7 +105,12 @@ func (a *app) renderCard(mode string) error {
 	} else {
 		a.card.sessions.Clear()
 	}
-	a.card.card.AddItem(a.card.sessions, 0, 1, false)
+	a.card.sessionsFlex.Clear()
+	a.card.sessionsFlex.SetDirection(tview.FlexRow)
+	a.card.sessionsFlex.AddItem(a.card.sessions, 0, 1, false)
+	a.card.sessionsFlex.AddItem(a.card.sessionForm, 8, 1, false)
+	a.card.card.AddItem(a.card.sessionsFlex, 0, 1, false)
+	//a.card.card.AddItem(a.card.sessions, 0, 1, false)
 	a.pages.AddAndSwitchToPage("card", a.card.card, true)
 	a.root.SetFocus(a.card.form)
 	return nil

@@ -14,11 +14,17 @@ func (a *app) sessionEvents(event *tcell.EventKey) *tcell.EventKey {
 	case tcell.KeyCtrlJ:
 		// start/stop session
 		a.sessionStartStop()
+	case tcell.KeyTAB:
+
 	}
 	return event
 }
 
 func (a *app) renderSession() {
+	const (
+		startFormat = "02.01.06 15:04"
+		endFormat   = "15:04"
+	)
 	a.card.sessions.Clear()
 	activeBoard := &a.boards[a.activeBoard]
 	activeStage := activeBoard.board.Stages[activeBoard.activeStage]
@@ -27,10 +33,10 @@ func (a *app) renderSession() {
 	for i := range activeCard.Sessions {
 		s := activeCard.Sessions[len(activeCard.Sessions)-i-1]
 		a.card.sessions.SetCell(i, 0,
-			tview.NewTableCell(s.Start.Format(wdgo.TimeFormat)))
+			tview.NewTableCell(s.Start.Format(startFormat)))
 		if (s.End != time.Time{}) {
 			a.card.sessions.SetCell(i, 1,
-				tview.NewTableCell(s.End.Format(wdgo.TimeFormat)))
+				tview.NewTableCell(s.End.Format(endFormat)))
 			a.card.sessions.SetCell(i, 2,
 				tview.NewTableCell(s.End.Sub(s.Start).String()))
 			sum += s.End.Sub(s.Start)
@@ -41,10 +47,12 @@ func (a *app) renderSession() {
 	a.card.sessions.SetCell(len(activeCard.Sessions), 2,
 		tview.NewTableCell(sum.String()))
 	a.card.sessions.SetBorder(true)
-	//a.card.sessions.SetBorders(true)
-	//a.card.sessions.scro
+	a.card.sessions.SetSelectable(true, false)
+	a.card.sessions.SetSelectedFunc(func(row, col int) {
+		a.renderSessionForm(row)
+		a.root.SetFocus(a.card.sessionForm)
+	})
 	a.card.sessions.ScrollToBeginning()
-
 }
 
 func (a *app) sessionStartStop() {
@@ -64,4 +72,64 @@ func (a *app) sessionStartStop() {
 	}
 	activeBoard.aggregator.State()
 	a.renderCard("edit")
+}
+
+func (a *app) renderSessionForm(index int) {
+	const dateFormat = wdgo.TimeFormat
+	activeBoard := &a.boards[a.activeBoard]
+	//activeStage := activeBoard.board.Stages[activeBoard.activeStage]
+	//activeCard := activeStage.Cards[activeBoard.activeCard]
+	if activeBoard.cardSelected == nil {
+		a.card.sessionForm.Clear(true)
+		return
+	}
+	sessions := len(activeBoard.cardSelected.Sessions)
+	session := activeBoard.cardSelected.Sessions[sessions-index-1]
+	startEdited, endEdited := false, false
+	edited := wdgo.Session{}
+	a.card.sessionForm.Clear(true)
+	a.card.sessionForm.AddInputField("Start", session.Start.Format(dateFormat), 20,
+		func(textToCheck string, lastChar rune) bool {
+			return true
+		},
+		func(text string) {
+			startEdited = true
+			var err error
+			edited.Start, err = time.Parse(dateFormat, text)
+			if err != nil {
+				startEdited = false
+			}
+		})
+	a.card.sessionForm.AddInputField("End", session.End.Format(dateFormat), 20,
+		func(textToCheck string, lastChar rune) bool {
+			return true
+		},
+		func(text string) {
+			endEdited = true
+			var err error
+			edited.End, err = time.Parse(dateFormat, text)
+			if err != nil {
+				endEdited = false
+			}
+		})
+	a.card.sessionForm.AddButton("Save", func() {
+		if startEdited {
+			activeBoard.aggregator.NewEvent(session.ID(), "Start",
+				edited.Start.Format(wdgo.TimeFormat))
+		}
+		if endEdited {
+			activeBoard.aggregator.NewEvent(session.ID(), "End",
+				edited.End.Format(wdgo.TimeFormat))
+		}
+		activeBoard.aggregator.State()
+		a.renderCard("edit")
+		a.renderSession()
+		a.card.sessionForm.Clear(true)
+		a.root.SetFocus(a.card.form)
+	})
+	a.card.sessionForm.AddButton("Cancel", func() {
+		a.card.sessionForm.Clear(true)
+		a.root.SetFocus(a.card.form)
+	})
+
 }
