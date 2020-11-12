@@ -77,14 +77,18 @@ func (a *app) sessionStartStop() {
 func (a *app) renderSessionForm(index int) {
 	const dateFormat = wdgo.TimeFormat
 	activeBoard := &a.boards[a.activeBoard]
-	//activeStage := activeBoard.board.Stages[activeBoard.activeStage]
-	//activeCard := activeStage.Cards[activeBoard.activeCard]
+	activeStage := activeBoard.board.Stages[activeBoard.activeStage]
+	activeCard := activeStage.Cards[activeBoard.activeCard]
 	if activeBoard.cardSelected == nil {
 		a.card.sessionForm.Clear(true)
 		return
 	}
-	sessions := len(activeBoard.cardSelected.Sessions)
-	session := activeBoard.cardSelected.Sessions[sessions-index-1]
+	sessions := len(activeCard.Sessions)
+	i := sessions - index - 1
+	if i < 0 {
+		i = 0
+	}
+	session := activeCard.Sessions[i]
 	startEdited, endEdited := false, false
 	edited := wdgo.Session{}
 	a.card.sessionForm.Clear(true)

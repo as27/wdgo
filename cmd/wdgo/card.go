@@ -14,7 +14,7 @@ func (a *app) cardEvents(event *tcell.EventKey) *tcell.EventKey {
 	case tcell.KeyEsc:
 		activeBoard.cardSelected = nil
 		a.renderBoard()
-	case tcell.KeyTAB:
+	case tcell.KeyRight, tcell.KeyLeft:
 		if a.card.form.HasFocus() {
 			a.root.SetFocus(a.card.sessions)
 		} else if a.card.sessions.HasFocus() {
