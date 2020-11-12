@@ -60,8 +60,20 @@ func TestStageMoveTo(t *testing.T) {
 	e, _ := b.Find("s4")
 	err := e.Event(Cmd{"MoveTo", "0"})
 	expectNoError(t, err)
+	e, _ = b.Find("s1")
+	err = e.Event(Cmd{"MoveTo", "4"})
+	expectNoError(t, err)
+	e, _ = b.Find("s0")
+	err = e.Event(Cmd{"MoveTo", "3"})
+	expectNoError(t, err)
 	if b.Stages[0].id != "s4" && b.Stages[3].id != "s2" {
 		t.Errorf("MoveTo does not work\nGot: %#v", *b.Stages[0])
+		for i, v := range b.Stages {
+			fmt.Println(i, v.id)
+		}
+	}
+	if b.Stages[4].id != "s1" || b.Stages[3].id != "s0" {
+		t.Errorf("MoveTo Back does not work\nGot: %#v", *b.Stages[0])
 		for i, v := range b.Stages {
 			fmt.Println(i, v.id)
 		}

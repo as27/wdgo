@@ -39,9 +39,11 @@ type board struct {
 }
 
 type cardViews struct {
-	card     *tview.Flex
-	form     *tview.Form
-	sessions *tview.Table
+	card         *tview.Flex
+	form         *tview.Form
+	sessionsFlex *tview.Flex
+	sessions     *tview.Table
+	sessionForm  *tview.Form
 }
 
 type appPaths struct {
@@ -55,9 +57,11 @@ func newApp(p appPaths) *app {
 		pages: tview.NewPages(),
 		home:  tview.NewList(),
 		card: cardViews{
-			card:     tview.NewFlex(),
-			form:     tview.NewForm(),
-			sessions: tview.NewTable(),
+			card:         tview.NewFlex(),
+			form:         tview.NewForm(),
+			sessionsFlex: tview.NewFlex(),
+			sessions:     tview.NewTable(),
+			sessionForm:  tview.NewForm(),
 		},
 		stage:    tview.NewForm(),
 		newBoard: tview.NewForm(),
@@ -97,11 +101,12 @@ func (a *app) inputCaptures(event *tcell.EventKey) *tcell.EventKey {
 		a.boardEvents(event)
 	case "card":
 		a.cardEvents(event)
+		a.sessionEvents(event)
 	case "stage":
 		a.stageEvents(event)
 	}
 	// global key bindings
-	if event.Key() == tcell.KeyEsc {
+	if event.Key() == tcell.KeyCtrlQ {
 		a.stop()
 	}
 	return event

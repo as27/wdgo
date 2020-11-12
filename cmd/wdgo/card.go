@@ -1,17 +1,25 @@
 package main
 
 import (
-	"time"
-
 	"github.com/as27/wdgo/internal/wdgo"
 	"github.com/gdamore/tcell/v2"
 	"github.com/google/uuid"
+	"github.com/rivo/tview"
 )
 
 func (a *app) cardEvents(event *tcell.EventKey) *tcell.EventKey {
+	activeBoard := &a.boards[a.activeBoard]
+	//activeStage := activeBoard.board.Stages[activeBoard.activeStage]
 	switch event.Key() {
-	case tcell.KeyCtrlQ:
+	case tcell.KeyEsc:
+		activeBoard.cardSelected = nil
 		a.renderBoard()
+	case tcell.KeyRight, tcell.KeyLeft:
+		if a.card.form.HasFocus() {
+			a.root.SetFocus(a.card.sessions)
+		} else if a.card.sessions.HasFocus() {
+			a.root.SetFocus(a.card.form)
+		}
 	}
 	return event
 }
@@ -31,21 +39,7 @@ func (a *app) renderCard(mode string) error {
 	}
 	stageIndex := activeBoard.activeStage
 	if mode == "edit" {
-		a.card.form.AddButton("Start/Stop Session", func() {
-			now := time.Now().Format(wdgo.TimeFormat)
-			if (len(activeCard.Sessions) == 0 ||
-				activeCard.Sessions[len(activeCard.Sessions)-1].End != time.Time{}) {
-				// create new session
-				id := uuid.New().String()
-				activeBoard.aggregator.NewEvent(activeCard.ID(), "AddSession", id)
-				activeBoard.aggregator.NewEvent(id, "Start", now)
-			} else {
-				id := activeCard.Sessions[len(activeCard.Sessions)-1].ID()
-				activeBoard.aggregator.NewEvent(id, "End", now)
-			}
-			activeBoard.aggregator.State()
-			a.renderCard("edit")
-		})
+		a.card.form.AddButton("Start/Stop Session", a.sessionStartStop)
 	}
 	a.card.form.AddInputField("Name", activeCard.Name, 20, nil,
 		func(text string) { edited.Name = text })
@@ -94,12 +88,13 @@ func (a *app) renderCard(mode string) error {
 				"MoveToStage", activeBoard.board.Stages[stageIndex].ID())
 			activeBoard.activeStage = stageIndex
 			activeBoard.activeCard = 0
-			activeBoard.cardSelected = nil
 		}
+		activeBoard.cardSelected = nil
 		activeBoard.aggregator.State()
 		a.renderBoard()
 	})
 	a.card.form.AddButton("Cancel", func() {
+		activeBoard.cardSelected = nil
 		a.renderBoard()
 	})
 	a.card.form.SetTitle("card properties").SetBorder(true)
@@ -110,7 +105,12 @@ func (a *app) renderCard(mode string) error {
 	} else {
 		a.card.sessions.Clear()
 	}
-	a.card.card.AddItem(a.card.sessions, 0, 1, false)
+	a.card.sessionsFlex.Clear()
+	a.card.sessionsFlex.SetDirection(tview.FlexRow)
+	a.card.sessionsFlex.AddItem(a.card.sessions, 0, 1, false)
+	a.card.sessionsFlex.AddItem(a.card.sessionForm, 8, 1, false)
+	a.card.card.AddItem(a.card.sessionsFlex, 0, 1, false)
+	//a.card.card.AddItem(a.card.sessions, 0, 1, false)
 	a.pages.AddAndSwitchToPage("card", a.card.card, true)
 	a.root.SetFocus(a.card.form)
 	return nil

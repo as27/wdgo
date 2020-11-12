@@ -3,6 +3,7 @@ package main
 import (
 	"bufio"
 	"flag"
+	"fmt"
 	"log"
 	"os"
 )
@@ -23,6 +24,24 @@ func main() {
 		defer logfile.Close()
 		log.SetOutput(logfile)
 	}
+	logFile := fmt.Sprintf("%s.lock", *flagAppFile)
+	// check lock
+	_, err := os.Stat(logFile)
+	if !os.IsNotExist(err) {
+		fmt.Println("there is another instance running")
+		os.Exit(2)
+	}
+	// set lock
+	lock, err := os.Create(logFile)
+	if err != nil {
+		log.Println(err)
+		log.Println("can not creat lock-file")
+		os.Exit(1)
+	}
+	lock.Close()
+	// remove lock after main is finished
+	defer os.Remove(logFile)
+
 	a := newApp(
 		appPaths{
 			app:   *flagAppFile,
