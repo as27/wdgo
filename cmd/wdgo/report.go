@@ -29,7 +29,15 @@ func (a *app) renderReport() {
 			if ci == 0 {
 				continue
 			}
-			a.report.SetCell(ri, ci, tview.NewTableCell(cell))
+			align := tview.AlignRight
+			switch ci {
+			case 2, 3:
+				align = tview.AlignCenter
+			default:
+				align = tview.AlignRight
+			}
+			a.report.SetCell(ri, ci,
+				tview.NewTableCell(cell).SetAlign(align))
 		}
 	}
 	a.report.SetSelectable(true, false)
@@ -51,21 +59,25 @@ func (a *app) createSessionTable() [][]string {
 			for _, card := range stage.Cards {
 				var cardsum time.Duration
 				for _, s := range card.Sessions {
-					if s.End.Sub(s.Start) > 0 {
-						cardsum += s.End.Sub(s.Start)
+					sDuration := s.End.Sub(s.Start)
+					if sDuration > 0 {
+						cardsum += sDuration
 					}
 					row := make([]string, 11)
 					row[0] = fmt.Sprintf("%s:%s",
 						s.Start.Format(sortFormat),
 						card.ID())
-					row[1] = b.board.Name
-					row[2] = card.Name
-					row[3] = card.Description
-					row[4] = card.SupportID
-					row[5] = s.Start.Format(dayFormat)
+					row[1] = s.Start.Format(dayFormat)
+					row[2] = b.board.Name
+					row[3] = card.Name
+					row[4] = card.Description
+					row[5] = card.SupportID
 					row[6] = s.Start.Format(timeFormat)
 					row[7] = s.End.Format(timeFormat)
-					row[8] = fmt.Sprintf("%.2f", s.End.Sub(s.Start).Hours())
+					row[8] = fmt.Sprintf("%.2f", sDuration.Hours())
+					if sDuration < 0 {
+						row[8] = "-"
+					}
 					row[9] = fmt.Sprintf("%.2f", cardsum.Hours())
 					data = append(data, row)
 				}
@@ -82,8 +94,10 @@ func (a *app) createSessionTable() [][]string {
 			lastSortVal = row[0]
 			dayCardSum = 0
 		}
-		dur, _ := strconv.ParseFloat(row[8], 32)
-		dayCardSum += dur
+		dur, err := strconv.ParseFloat(row[8], 32)
+		if err == nil {
+			dayCardSum += dur
+		}
 		row[10] = fmt.Sprintf("%.2f", dayCardSum)
 	}
 	return data
