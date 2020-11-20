@@ -75,7 +75,7 @@ func (a *app) sessionStartStop() {
 }
 
 func (a *app) renderSessionForm(index int) {
-	const dateFormat = wdgo.TimeFormat
+	const dateFormat = "2006-01-02 15:04"
 	activeBoard := &a.boards[a.activeBoard]
 	activeStage := activeBoard.board.Stages[activeBoard.activeStage]
 	activeCard := activeStage.Cards[activeBoard.activeCard]
@@ -92,7 +92,7 @@ func (a *app) renderSessionForm(index int) {
 	startEdited, endEdited := false, false
 	edited := wdgo.Session{}
 	a.card.sessionForm.Clear(true)
-	a.card.sessionForm.AddInputField("Start", session.Start.Format(dateFormat), 20,
+	a.card.sessionForm.AddInputField("Start", session.Start.Format(dateFormat), 17,
 		func(textToCheck string, lastChar rune) bool {
 			return true
 		},
@@ -104,7 +104,7 @@ func (a *app) renderSessionForm(index int) {
 				startEdited = false
 			}
 		})
-	a.card.sessionForm.AddInputField("End", session.End.Format(dateFormat), 20,
+	a.card.sessionForm.AddInputField("End", session.End.Format(dateFormat), 17,
 		func(textToCheck string, lastChar rune) bool {
 			return true
 		},

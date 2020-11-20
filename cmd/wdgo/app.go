@@ -22,6 +22,7 @@ type app struct {
 	card        cardViews
 	stage       *tview.Form
 	newBoard    *tview.Form
+	report      *tview.Table
 	activeBoard int
 	boards      []board
 	path        appPaths
@@ -65,6 +66,7 @@ func newApp(p appPaths) *app {
 		},
 		stage:    tview.NewForm(),
 		newBoard: tview.NewForm(),
+		report:   tview.NewTable(),
 		path:     p,
 	}
 	err := a.initBoards()
@@ -104,6 +106,8 @@ func (a *app) inputCaptures(event *tcell.EventKey) *tcell.EventKey {
 		a.sessionEvents(event)
 	case "stage":
 		a.stageEvents(event)
+	case "report":
+		a.reportEvents(event)
 	}
 	// global key bindings
 	if event.Key() == tcell.KeyCtrlQ {
