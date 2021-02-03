@@ -26,12 +26,12 @@ func (a *app) renderReport() {
 
 	for ri, row := range data {
 		for ci, cell := range row {
-			if ci == 0 {
+			if ci <= 1 {
 				continue
 			}
 			align := tview.AlignRight
 			switch ci {
-			case 2, 3:
+			case 3, 4:
 				align = tview.AlignCenter
 			default:
 				align = tview.AlignRight
@@ -41,6 +41,12 @@ func (a *app) renderReport() {
 		}
 	}
 	a.report.SetSelectable(true, false)
+	a.report.SetSelectedFunc(func(row, col int) {
+		// jump into the card view when a row is selected
+		cardID := data[row][1]
+		a.setActiveCard(cardID)
+		a.renderCard("edit")
+	})
 	a.report.ScrollToBeginning()
 	a.pages.AddAndSwitchToPage("report", a.report, true)
 	a.root.SetFocus(a.report)
@@ -63,22 +69,25 @@ func (a *app) createSessionTable() [][]string {
 					if sDuration > 0 {
 						cardsum += sDuration
 					}
-					row := make([]string, 11)
+					row := make([]string, 12)
 					row[0] = fmt.Sprintf("%s:%s",
 						s.Start.Format(sortFormat),
 						card.ID())
-					row[1] = s.Start.Format(dayFormat)
-					row[2] = b.board.Name
-					row[3] = card.Name
-					row[4] = card.Description
-					row[5] = card.SupportID
-					row[6] = s.Start.Format(timeFormat)
-					row[7] = s.End.Format(timeFormat)
-					row[8] = fmt.Sprintf("%.2f", sDuration.Hours())
+					row[1] = card.ID()
+					row[2] = s.Start.Format(dayFormat)
+					row[3] = b.board.Name
+					row[4] = card.Name
+					row[5] = card.Description
+					row[5] = "" // description deactivated
+					row[6] = card.SupportID
+					row[7] = s.Start.Format(timeFormat)
+					row[8] = s.End.Format(timeFormat)
+					row[9] = fmt.Sprintf("%.2f", sDuration.Hours())
 					if sDuration < 0 {
-						row[8] = "-"
+						row[9] = "-"
 					}
-					row[9] = fmt.Sprintf("%.2f", cardsum.Hours())
+					// important index 10 is used later for the
+					// daily sum
 					data = append(data, row)
 				}
 			}
@@ -94,7 +103,9 @@ func (a *app) createSessionTable() [][]string {
 			lastSortVal = row[0]
 			dayCardSum = 0
 		}
-		dur, err := strconv.ParseFloat(row[8], 32)
+		// after the data is sorted the daily duration can
+		// be calculated
+		dur, err := strconv.ParseFloat(row[9], 32)
 		if err == nil {
 			dayCardSum += dur
 		}
