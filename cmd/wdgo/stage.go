@@ -16,6 +16,7 @@ func (a *app) stageEvents(event *tcell.EventKey) *tcell.EventKey {
 	case tcell.KeyEsc:
 		a.pages.SwitchToPage("board")
 		a.root.SetFocus(a.home)
+
 	}
 	return event
 }

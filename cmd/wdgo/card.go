@@ -1,11 +1,31 @@
 package main
 
 import (
+	"log"
+
 	"github.com/as27/wdgo/internal/wdgo"
 	"github.com/gdamore/tcell/v2"
 	"github.com/google/uuid"
 	"github.com/rivo/tview"
 )
+
+// setActiveCard is used to set the focus to a card by using
+// the id
+func (a *app) setActiveCard(id string) (ok bool) {
+	for ib, b := range a.boards {
+		for is, s := range b.board.Stages {
+			for ic, c := range s.Cards {
+				if c.ID() == id {
+					a.activeBoard = ib
+					a.boards[ib].activeStage = is
+					a.boards[ib].activeCard = ic
+					return true
+				}
+			}
+		}
+	}
+	return false
+}
 
 func (a *app) cardEvents(event *tcell.EventKey) *tcell.EventKey {
 	activeBoard := &a.boards[a.activeBoard]
@@ -14,6 +34,13 @@ func (a *app) cardEvents(event *tcell.EventKey) *tcell.EventKey {
 	case tcell.KeyEsc:
 		activeBoard.cardSelected = nil
 		a.renderBoard()
+		// store all events, when leaving a card view
+		go func() {
+			err := a.writeEvents()
+			if err != nil {
+				log.Printf("SwitchToHome: writeEvent() err: %s", err)
+			}
+		}()
 	case tcell.KeyRight, tcell.KeyLeft:
 		if a.card.form.HasFocus() {
 			a.root.SetFocus(a.card.sessions)

@@ -25,6 +25,7 @@ func (a *app) boardEvents(event *tcell.EventKey) *tcell.EventKey {
 			// go back with esc
 			a.pages.SwitchToPage("home")
 			a.root.SetFocus(a.home)
+
 		}
 	case tcell.KeyEnter:
 		if activeBoard.cardSelected == nil {
