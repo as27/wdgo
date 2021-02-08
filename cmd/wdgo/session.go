@@ -80,8 +80,9 @@ func (a *app) renderSessionForm(index int) {
 	activeStage := activeBoard.board.Stages[activeBoard.activeStage]
 	activeCard := activeStage.Cards[activeBoard.activeCard]
 	if activeBoard.cardSelected == nil {
-		a.card.sessionForm.Clear(true)
-		return
+		activeBoard.cardSelected = activeCard
+		//a.card.sessionForm.Clear(true)
+		//return
 	}
 	sessions := len(activeCard.Sessions)
 	i := sessions - index - 1
