@@ -41,6 +41,7 @@ func (a *app) renderSession() {
 				tview.NewTableCell(s.End.Sub(s.Start).String()))
 			sum += s.End.Sub(s.Start)
 		}
+		a.card.sessions.SetCell(i, 3, tview.NewTableCell(s.Note))
 	}
 	a.card.sessions.SetCell(len(activeCard.Sessions), 2,
 		tview.NewTableCell("sum:"))
