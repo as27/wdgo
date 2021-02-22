@@ -21,4 +21,11 @@ func TestSessionEvents(t *testing.T) {
 	if err != nil {
 		t.Errorf("Find(ss1)\nno error expected.\ngot: %s", err)
 	}
+	expectNote := "A 123 Note"
+	err = e.Event(Cmd{"Note", expectNote})
+	expectNoError(t, err)
+	gotNote := b.Stages[1].Cards[1].Sessions[1].Note
+	if gotNote != expectNote {
+		t.Errorf("ss1 Note should: %s; got: %s", expectNote, gotNote)
+	}
 }

@@ -91,6 +91,7 @@ func (a *app) renderSessionForm(index int) {
 	session := activeCard.Sessions[i]
 	startEdited, endEdited := false, false
 	edited := wdgo.Session{}
+	edited.Note = session.Note
 	a.card.sessionForm.Clear(true)
 	a.card.sessionForm.AddInputField("Start", session.Start.Format(dateFormat), 17,
 		func(textToCheck string, lastChar rune) bool {
@@ -116,6 +117,13 @@ func (a *app) renderSessionForm(index int) {
 				endEdited = false
 			}
 		})
+	a.card.sessionForm.AddInputField("Note", session.Note, 27,
+		func(textToCheck string, lastChar rune) bool {
+			return true
+		},
+		func(text string) {
+			edited.Note = text
+		})
 	a.card.sessionForm.AddButton("Save", func() {
 		if startEdited {
 			activeBoard.aggregator.NewEvent(session.ID(), "Start",
@@ -124,6 +132,9 @@ func (a *app) renderSessionForm(index int) {
 		if endEdited {
 			activeBoard.aggregator.NewEvent(session.ID(), "End",
 				edited.End.Format(wdgo.TimeFormat))
+		}
+		if session.Note != edited.Note {
+			activeBoard.aggregator.NewEvent(session.ID(), "Note", edited.Note)
 		}
 		activeBoard.aggregator.State()
 		a.renderCard("edit")
