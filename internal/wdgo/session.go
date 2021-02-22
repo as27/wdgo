@@ -11,6 +11,7 @@ type Session struct {
 	Card  *Card
 	Start time.Time
 	End   time.Time
+	Note  string
 }
 
 // NewSession creates a session with a unmutable id
@@ -26,6 +27,8 @@ func (s *Session) Event(cmd Cmd) error {
 	switch cmd.Action {
 	case "Name":
 		s.Name = cmd.Value
+	case "Note":
+		s.Note = cmd.Value
 	case "Start":
 		s.Start, err = time.Parse(TimeFormat, cmd.Value)
 		if err != nil {

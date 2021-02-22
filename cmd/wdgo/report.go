@@ -88,6 +88,7 @@ func (a *app) createSessionTable() [][]string {
 					}
 					// important index 10 is used later for the
 					// daily sum
+					row[11] = s.Note
 					data = append(data, row)
 				}
 			}

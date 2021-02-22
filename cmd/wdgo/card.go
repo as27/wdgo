@@ -135,7 +135,7 @@ func (a *app) renderCard(mode string) error {
 	a.card.sessionsFlex.Clear()
 	a.card.sessionsFlex.SetDirection(tview.FlexRow)
 	a.card.sessionsFlex.AddItem(a.card.sessions, 0, 1, false)
-	a.card.sessionsFlex.AddItem(a.card.sessionForm, 8, 1, false)
+	a.card.sessionsFlex.AddItem(a.card.sessionForm, 10, 1, false)
 	a.card.card.AddItem(a.card.sessionsFlex, 0, 1, false)
 	//a.card.card.AddItem(a.card.sessions, 0, 1, false)
 	a.pages.AddAndSwitchToPage("card", a.card.card, true)

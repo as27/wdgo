@@ -41,6 +41,7 @@ func (a *app) renderSession() {
 				tview.NewTableCell(s.End.Sub(s.Start).String()))
 			sum += s.End.Sub(s.Start)
 		}
+		a.card.sessions.SetCell(i, 3, tview.NewTableCell(s.Note))
 	}
 	a.card.sessions.SetCell(len(activeCard.Sessions), 2,
 		tview.NewTableCell("sum:"))
@@ -80,8 +81,9 @@ func (a *app) renderSessionForm(index int) {
 	activeStage := activeBoard.board.Stages[activeBoard.activeStage]
 	activeCard := activeStage.Cards[activeBoard.activeCard]
 	if activeBoard.cardSelected == nil {
-		a.card.sessionForm.Clear(true)
-		return
+		activeBoard.cardSelected = activeCard
+		//a.card.sessionForm.Clear(true)
+		//return
 	}
 	sessions := len(activeCard.Sessions)
 	i := sessions - index - 1
@@ -91,6 +93,7 @@ func (a *app) renderSessionForm(index int) {
 	session := activeCard.Sessions[i]
 	startEdited, endEdited := false, false
 	edited := wdgo.Session{}
+	edited.Note = session.Note
 	a.card.sessionForm.Clear(true)
 	a.card.sessionForm.AddInputField("Start", session.Start.Format(dateFormat), 17,
 		func(textToCheck string, lastChar rune) bool {
@@ -116,6 +119,13 @@ func (a *app) renderSessionForm(index int) {
 				endEdited = false
 			}
 		})
+	a.card.sessionForm.AddInputField("Note", session.Note, 27,
+		func(textToCheck string, lastChar rune) bool {
+			return true
+		},
+		func(text string) {
+			edited.Note = text
+		})
 	a.card.sessionForm.AddButton("Save", func() {
 		if startEdited {
 			activeBoard.aggregator.NewEvent(session.ID(), "Start",
@@ -124,6 +134,9 @@ func (a *app) renderSessionForm(index int) {
 		if endEdited {
 			activeBoard.aggregator.NewEvent(session.ID(), "End",
 				edited.End.Format(wdgo.TimeFormat))
+		}
+		if session.Note != edited.Note {
+			activeBoard.aggregator.NewEvent(session.ID(), "Note", edited.Note)
 		}
 		activeBoard.aggregator.State()
 		a.renderCard("edit")
