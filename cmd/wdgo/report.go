@@ -2,10 +2,12 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"sort"
 	"strconv"
 	"time"
 
+	"github.com/360EntSecGroup-Skylar/excelize/v2"
 	"github.com/gdamore/tcell/v2"
 	"github.com/rivo/tview"
 )
@@ -50,6 +52,28 @@ func (a *app) renderReport() {
 	a.report.ScrollToBeginning()
 	a.pages.AddAndSwitchToPage("report", a.report, true)
 	a.root.SetFocus(a.report)
+	a.xlsReport()
+}
+
+func (a *app) xlsReport() {
+	const sheetName = "Zeiten"
+	const fileName = "zeiten.xlsx"
+	data := a.createSessionTable()
+	f := excelize.NewFile()
+	f.NewSheet(sheetName)
+	for rowNr, row := range data {
+		for colNr, cell := range row {
+			axis, err := excelize.CoordinatesToCellName(colNr+1, rowNr+1)
+			if err != nil {
+				log.Println("exclize.xlsReport:", err)
+			}
+			f.SetCellValue("Zeiten", axis, cell)
+		}
+	}
+	err := f.SaveAs(fileName)
+	if err != nil {
+		log.Println("cannot save file:", err)
+	}
 }
 
 func (a *app) createSessionTable() [][]string {
