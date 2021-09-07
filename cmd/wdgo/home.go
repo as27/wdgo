@@ -25,6 +25,9 @@ func (a *app) renderHome() error {
 	a.home.AddItem("New Board", "create a new board", '+', func() {
 		a.renderNewBoard()
 	})
+	a.home.AddItem("ToDo", "Show personal ToDos", 'T', func() {
+		a.renderToDo()
+	})
 	a.home.AddItem("Report", "Create different reports", 'R', func() {
 		a.renderReport()
 	})

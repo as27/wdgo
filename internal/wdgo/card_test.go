@@ -168,3 +168,45 @@ func TestCardPos(t *testing.T) {
 		})
 	}
 }
+
+func TestCardToDo(t *testing.T) {
+	b := Board{}
+	b.id = "1"
+	b.Name = "Testboard"
+	b.Event(Cmd{"AddStage", "s0"})
+	b.Event(Cmd{"AddStage", "s1"})
+	e, _ := b.Find("s1")
+	e.Event(Cmd{"AddCard", "c0"})
+	e.Event(Cmd{"AddCard", "c1"})
+	e, _ = b.Find("c1")
+	e.Event(Cmd{"ToDo", "True"})
+	c1 := b.Stages[1].Cards[1]
+	if !c1.ToDo {
+		t.Error("c1 should be a ToDo")
+	}
+	e.Event(Cmd{"ToDo", "False"})
+	if c1.ToDo {
+		t.Error("c1 should not be a ToDo")
+	}
+}
+
+func TestCardArchived(t *testing.T) {
+	b := Board{}
+	b.id = "1"
+	b.Name = "Testboard"
+	b.Event(Cmd{"AddStage", "s0"})
+	b.Event(Cmd{"AddStage", "s1"})
+	e, _ := b.Find("s1")
+	e.Event(Cmd{"AddCard", "c0"})
+	e.Event(Cmd{"AddCard", "c1"})
+	e, _ = b.Find("c1")
+	e.Event(Cmd{"Archived", "True"})
+	c1 := b.Stages[1].Cards[1]
+	if !c1.Archived {
+		t.Error("c1 should be a Archived")
+	}
+	e.Event(Cmd{"Archived", "False"})
+	if c1.Archived {
+		t.Error("c1 should not be a Archived")
+	}
+}

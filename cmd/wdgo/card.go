@@ -79,6 +79,10 @@ func (a *app) renderCard(mode string) error {
 	a.card.form.AddDropDown("Stage", stages, activeBoard.activeStage, func(option string, optionIndex int) {
 		stageIndex = optionIndex
 	})
+	a.card.form.AddCheckbox("ToDo", activeCard.ToDo,
+		func(checked bool) { edited.ToDo = checked })
+	a.card.form.AddCheckbox("Archived", activeCard.Archived,
+		func(checked bool) { edited.Archived = checked })
 	a.card.form.AddButton("Save", func() {
 		if mode == "add" {
 			id := uuid.New().String()
@@ -95,6 +99,9 @@ func (a *app) renderCard(mode string) error {
 			if edited.Customer != "" {
 				activeBoard.aggregator.NewEvent(id, "Customer", edited.Customer)
 			}
+			if edited.ToDo {
+				activeBoard.aggregator.NewEvent(id, "ToDo", "True")
+			}
 		} else {
 			id := activeCard.ID()
 			if edited.Name != activeCard.Name {
@@ -108,6 +115,20 @@ func (a *app) renderCard(mode string) error {
 			}
 			if edited.Customer != activeCard.Customer {
 				activeBoard.aggregator.NewEvent(id, "Customer", edited.Customer)
+			}
+			if edited.ToDo != activeCard.ToDo {
+				val := "False"
+				if edited.ToDo {
+					val = "True"
+				}
+				activeBoard.aggregator.NewEvent(id, "ToDo", val)
+			}
+			if edited.Archived != activeCard.Archived {
+				val := "False"
+				if edited.Archived {
+					val = "True"
+				}
+				activeBoard.aggregator.NewEvent(id, "Archived", val)
 			}
 		}
 		if activeBoard.activeStage != stageIndex {
