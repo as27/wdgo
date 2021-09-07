@@ -43,12 +43,13 @@ func (a *app) createToDoTable() [][]string {
 				if !card.ToDo {
 					continue
 				}
-				row := make([]string, 5)
+				row := make([]string, 6)
 				row[0] = card.ID()
-				row[1] = b.board.Name
-				row[2] = card.Name
-				row[3] = card.Description
-				row[4] = card.SupportID
+				row[1] = stage.Name
+				row[2] = b.board.Name
+				row[3] = card.Name
+				row[4] = card.Description
+				row[5] = card.SupportID
 				data = append(data, row)
 
 			}
