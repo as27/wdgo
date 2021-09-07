@@ -13,7 +13,8 @@ import (
 func (a *app) boardEvents(event *tcell.EventKey) *tcell.EventKey {
 	activeBoard := &a.boards[a.activeBoard]
 	activeStage := activeBoard.board.Stages[activeBoard.activeStage]
-	cardsInBoard := len(activeBoard.board.Stages[activeBoard.activeStage].Cards)
+	cardsInBoard := activeBoard.board.Stages[activeBoard.activeStage].
+		GetActiveCardsLen()
 
 	switch event.Key() {
 	case tcell.KeyESC:
@@ -29,7 +30,7 @@ func (a *app) boardEvents(event *tcell.EventKey) *tcell.EventKey {
 		}
 	case tcell.KeyEnter:
 		if activeBoard.cardSelected == nil {
-			activeBoard.cardSelected = activeStage.Cards[activeBoard.activeCard]
+			activeBoard.cardSelected = activeStage.GetActiveCardNr(activeBoard.activeCard)
 		} else {
 			// double enter
 			a.renderCard("edit")
@@ -74,7 +75,9 @@ func (a *app) boardEvents(event *tcell.EventKey) *tcell.EventKey {
 					"MoveToStage",
 					activeBoard.board.Stages[activeBoard.activeStage].ID())
 				activeBoard.aggregator.State()
-				activeBoard.activeCard = len(activeBoard.board.Stages[activeBoard.activeStage].Cards) - 1
+				activeBoard.activeCard =
+					activeBoard.board.Stages[activeBoard.activeStage].
+						GetActiveCardsLen() - 1
 			}
 		} else if activeBoard.activeStage > 0 {
 			activeBoard.activeStage--
@@ -137,7 +140,11 @@ func (a *app) renderBoard() error {
 		}
 		cards := []*tview.TextView{}
 		cardbox := tview.NewFlex().SetDirection(tview.FlexRow)
-		for cnr, c := range s.Cards {
+		cnr := 0
+		for _, c := range s.Cards {
+			if c.Archived {
+				continue
+			}
 			txt := tview.NewTextView()
 			txt.SetBorder(true)
 			if active && activeBoard.activeCard == cnr {
@@ -150,6 +157,7 @@ func (a *app) renderBoard() error {
 			io.WriteString(txt, c.Name)
 			cards = append(cards, txt)
 			cardbox.AddItem(txt, 3, 1, false)
+			cnr++
 		}
 		stage.AddItem(cardbox, 0, 1, false)
 		activeBoard.cardviews =

@@ -56,7 +56,7 @@ func (a *app) renderCard(mode string) error {
 	activeStage := activeBoard.board.Stages[activeBoard.activeStage]
 	activeCard := &wdgo.Card{}
 	if mode == "edit" {
-		activeCard = activeStage.Cards[activeBoard.activeCard]
+		activeCard = activeStage.GetActiveCardNr(activeBoard.activeCard)
 	}
 	a.card.form.Clear(true)
 	edited := *activeCard
