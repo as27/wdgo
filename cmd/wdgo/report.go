@@ -12,6 +12,12 @@ import (
 	"github.com/rivo/tview"
 )
 
+const (
+	dayFormat  = "02.01.06"
+	sortFormat = "06-01-02"
+	timeFormat = "15:04"
+)
+
 func (a *app) reportEvents(event *tcell.EventKey) *tcell.EventKey {
 	switch event.Key() {
 	case tcell.KeyESC:
@@ -77,11 +83,7 @@ func (a *app) xlsReport() {
 }
 
 func (a *app) createSessionTable() [][]string {
-	const (
-		dayFormat  = "02.01.06"
-		sortFormat = "06-01-02"
-		timeFormat = "15:04"
-	)
+
 	data := [][]string{}
 	for _, b := range a.boards {
 		b.aggregator.State()
