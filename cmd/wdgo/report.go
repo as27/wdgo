@@ -2,12 +2,20 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"sort"
 	"strconv"
 	"time"
 
+	"github.com/360EntSecGroup-Skylar/excelize/v2"
 	"github.com/gdamore/tcell/v2"
 	"github.com/rivo/tview"
+)
+
+const (
+	dayFormat  = "02.01.06"
+	sortFormat = "06-01-02"
+	timeFormat = "15:04"
 )
 
 func (a *app) reportEvents(event *tcell.EventKey) *tcell.EventKey {
@@ -50,14 +58,32 @@ func (a *app) renderReport() {
 	a.report.ScrollToBeginning()
 	a.pages.AddAndSwitchToPage("report", a.report, true)
 	a.root.SetFocus(a.report)
+	a.xlsReport()
+}
+
+func (a *app) xlsReport() {
+	const sheetName = "Zeiten"
+	const fileName = "zeiten.xlsx"
+	data := a.createSessionTable()
+	f := excelize.NewFile()
+	f.NewSheet(sheetName)
+	for rowNr, row := range data {
+		for colNr, cell := range row {
+			axis, err := excelize.CoordinatesToCellName(colNr+1, rowNr+1)
+			if err != nil {
+				log.Println("exclize.xlsReport:", err)
+			}
+			f.SetCellValue("Zeiten", axis, cell)
+		}
+	}
+	err := f.SaveAs(fileName)
+	if err != nil {
+		log.Println("cannot save file:", err)
+	}
 }
 
 func (a *app) createSessionTable() [][]string {
-	const (
-		dayFormat  = "02.01.06"
-		sortFormat = "06-01-02"
-		timeFormat = "15:04"
-	)
+
 	data := [][]string{}
 	for _, b := range a.boards {
 		b.aggregator.State()

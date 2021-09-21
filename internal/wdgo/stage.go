@@ -89,3 +89,28 @@ func (s *Stage) Pos() int {
 	}
 	return -1
 }
+
+func (s *Stage) GetActiveCardNr(nr int) *Card {
+	i := 0
+	for _, c := range s.Cards {
+		if c.Archived {
+			continue
+		}
+		if i == nr {
+			return c
+		}
+		i++
+	}
+	return nil
+}
+
+func (s *Stage) GetActiveCardsLen() int {
+	i := 0
+	for _, c := range s.Cards {
+		if c.Archived {
+			continue
+		}
+		i++
+	}
+	return i
+}

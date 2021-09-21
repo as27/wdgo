@@ -13,6 +13,8 @@ type Card struct {
 	Description string
 	SupportID   string
 	Customer    string
+	ToDo        bool
+	Archived    bool
 	Comments    []*Comment
 	Sessions    []*Session
 }
@@ -95,6 +97,18 @@ func (c *Card) Event(cmd Cmd) error {
 		cc := NewComment(cmd.Value)
 		cc.Card = c
 		c.Comments = append(c.Comments, cc)
+	case "ToDo":
+		if cmd.Value == "True" {
+			c.ToDo = true
+		} else {
+			c.ToDo = false
+		}
+	case "Archived":
+		if cmd.Value == "True" {
+			c.Archived = true
+		} else {
+			c.Archived = false
+		}
 	default:
 		return fmt.Errorf("%w: %s", ErrNoSuchAction, cmd.Action)
 	}
