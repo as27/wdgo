@@ -9,7 +9,7 @@ import (
 )
 
 var (
-	flagLogFile   = flag.String("logFile", "", "write log into log.txt")
+	flagLogFile   = flag.String("logFile", "", "write log into this file")
 	flagAppFile   = flag.String("file", "wdgo.txt", "define the file where the boardlist is stored")
 	flagEventPath = flag.String("events", "events", "path where the events of each board are stored")
 )
@@ -20,19 +20,19 @@ func main() {
 	defer buf.Flush()
 	log.SetOutput(buf)
 	if *flagLogFile != "" {
-		logfile, _ := os.OpenFile("log.txt", os.O_CREATE, 0777)
+		logfile, _ := os.OpenFile(*flagLogFile, os.O_CREATE, 0777)
 		defer logfile.Close()
 		log.SetOutput(logfile)
 	}
-	logFile := fmt.Sprintf("%s.lock", *flagAppFile)
+	lockFile := fmt.Sprintf("%s.lock", *flagAppFile)
 	// check lock
-	_, err := os.Stat(logFile)
+	_, err := os.Stat(lockFile)
 	if !os.IsNotExist(err) {
 		fmt.Println("there is another instance running")
 		os.Exit(2)
 	}
 	// set lock
-	lock, err := os.Create(logFile)
+	lock, err := os.Create(lockFile)
 	if err != nil {
 		log.Println(err)
 		log.Println("can not creat lock-file")
@@ -40,7 +40,7 @@ func main() {
 	}
 	lock.Close()
 	// remove lock after main is finished
-	defer os.Remove(logFile)
+	defer os.Remove(lockFile)
 
 	a := newApp(
 		appPaths{
