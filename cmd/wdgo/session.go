@@ -28,7 +28,7 @@ func (a *app) renderSession() {
 	a.card.sessions.Clear()
 	activeBoard := &a.boards[a.activeBoard]
 	activeStage := activeBoard.board.Stages[activeBoard.activeStage]
-	activeCard := activeStage.Cards[activeBoard.activeCard]
+	activeCard := activeStage.GetActiveCardNr(activeBoard.activeCard)
 	var sum time.Duration
 	for i := range activeCard.Sessions {
 		s := activeCard.Sessions[len(activeCard.Sessions)-i-1]
@@ -59,7 +59,7 @@ func (a *app) renderSession() {
 func (a *app) sessionStartStop() {
 	activeBoard := &a.boards[a.activeBoard]
 	activeStage := activeBoard.board.Stages[activeBoard.activeStage]
-	activeCard := activeStage.Cards[activeBoard.activeCard]
+	activeCard := activeStage.GetActiveCardNr(activeBoard.activeCard)
 	now := time.Now().Format(wdgo.TimeFormat)
 	if (len(activeCard.Sessions) == 0 ||
 		activeCard.Sessions[len(activeCard.Sessions)-1].End != time.Time{}) {
@@ -79,7 +79,8 @@ func (a *app) renderSessionForm(index int) {
 	const dateFormat = "2006-01-02 15:04"
 	activeBoard := &a.boards[a.activeBoard]
 	activeStage := activeBoard.board.Stages[activeBoard.activeStage]
-	activeCard := activeStage.Cards[activeBoard.activeCard]
+	activeCard := activeStage.GetActiveCardNr(activeBoard.activeCard)
+
 	if activeBoard.cardSelected == nil {
 		activeBoard.cardSelected = activeCard
 	}
