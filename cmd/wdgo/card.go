@@ -14,12 +14,19 @@ import (
 func (a *app) setActiveCard(id string) (ok bool) {
 	for ib, b := range a.boards {
 		for is, s := range b.board.Stages {
-			for ic, c := range s.Cards {
+			ic := 0
+			for _, c := range s.Cards {
+
 				if c.ID() == id {
 					a.activeBoard = ib
 					a.boards[ib].activeStage = is
 					a.boards[ib].activeCard = ic
 					return true
+				}
+				// just count valid cards, because archived
+				// are not visible inside the app
+				if !c.Archived {
+					ic++
 				}
 			}
 		}

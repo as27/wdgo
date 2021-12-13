@@ -89,7 +89,7 @@ func (a *app) layout() error {
 	a.renderHome()
 	a.pages.AddPage("board", tview.NewBox(), true, false)
 	a.pages.AddPage("home", a.home, true, true)
-	a.root.SetRoot(a.pages, true).EnableMouse(true)
+	a.root.SetRoot(a.pages, true).EnableMouse(false)
 	a.root.SetInputCapture(a.inputCaptures)
 	return nil
 }
