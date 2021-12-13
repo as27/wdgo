@@ -86,6 +86,12 @@ func (a *Aggregator) Version(version int) {
 		ee, err := a.board.Find(e.id)
 		if err != nil {
 			log.Println("Error: Aggregator.State: cannot find id: ", err)
+			log.Printf("-> Boardname: %s; Board ID: %s",
+				a.board.Name, a.board.ID(),
+			)
+			log.Printf("-> Aggregator.Version(%d); Index %d; Searched for ID %s",
+				version, i, e.id,
+			)
 			continue
 		}
 		err = ee.Event(e.cmd)
