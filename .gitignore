@@ -18,3 +18,4 @@ cmd/wdgo/wdgo
 cmd/wdgo/events/*
 cmd/wdgo/wdgo.txt.lock
 cmd/wdgo/*.xlsx
+.DS_Store
