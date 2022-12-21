@@ -7,9 +7,9 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/360EntSecGroup-Skylar/excelize/v2"
 	"github.com/gdamore/tcell/v2"
 	"github.com/rivo/tview"
+	"github.com/xuri/excelize/v2"
 )
 
 const (
